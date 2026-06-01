@@ -1,0 +1,652 @@
+[
+  {
+    "id": "em-01",
+    "category": "equipos-medicos",
+    "prompt": "Que parametro mide el oximetro de pulso?",
+    "options": [
+      "Saturacion periferica de oxigeno",
+      "Presion venosa central",
+      "Flujo inspiratorio maximo",
+      "Fraccion de eyeccion"
+    ],
+    "correctIndex": 0,
+    "explanation": "La funcion principal del oximetro es estimar SpO2 de manera no invasiva."
+  },
+  {
+    "id": "em-02",
+    "category": "equipos-medicos",
+    "prompt": "Cual es el objetivo principal de una bomba de infusion?",
+    "options": [
+      "Medir temperatura central",
+      "Administrar fluidos con caudal controlado",
+      "Desfibrilar en emergencia",
+      "Ventilar con volumen tidal fijo"
+    ],
+    "correctIndex": 1,
+    "explanation": "La bomba entrega soluciones y farmacos con precision de flujo."
+  },
+  {
+    "id": "em-03",
+    "category": "equipos-medicos",
+    "prompt": "En un desfibrilador, la energia se expresa comunmente en:",
+    "options": [
+      "Voltios",
+      "Amperios",
+      "Joules",
+      "Hertz"
+    ],
+    "correctIndex": 2,
+    "explanation": "La descarga del desfibrilador se programa y reporta en Joules."
+  },
+  {
+    "id": "em-04",
+    "category": "equipos-medicos",
+    "prompt": "Que equipo se usa para esterilizar material por vapor a presion?",
+    "options": [
+      "Autoclave",
+      "Incubadora",
+      "Electrocardiografo",
+      "Nebulizador"
+    ],
+    "correctIndex": 0,
+    "explanation": "El autoclave utiliza vapor, temperatura y presion para esterilizacion."
+  },
+  {
+    "id": "em-05",
+    "category": "equipos-medicos",
+    "prompt": "Una incubadora neonatal controla principalmente:",
+    "options": [
+      "Temperatura y ambiente termico",
+      "Ritmo cardiaco del medico",
+      "Frecuencia de red electrica",
+      "Concentracion de anestesico"
+    ],
+    "correctIndex": 0,
+    "explanation": "Su funcion clave es mantener condiciones termicas estables para el neonato."
+  },
+  {
+    "id": "em-06",
+    "category": "equipos-medicos",
+    "prompt": "El monitor multiparametrico suele mostrar:",
+    "options": [
+      "ECG, SpO2 y presion no invasiva",
+      "Solo rayos X",
+      "Solo concentracion de gases",
+      "Solo potencia electrica del edificio"
+    ],
+    "correctIndex": 0,
+    "explanation": "Estos monitores integran varias senales fisiologicas en tiempo real."
+  },
+  {
+    "id": "em-07",
+    "category": "equipos-medicos",
+    "prompt": "Cual es un accesorio critico para medir NIBP?",
+    "options": [
+      "Mascarilla de nebulizacion",
+      "Manguito adecuado al paciente",
+      "Electrodo de bisturi",
+      "Filtro HEPA"
+    ],
+    "correctIndex": 1,
+    "explanation": "Un manguito incorrecto altera de forma importante la lectura de presion."
+  },
+  {
+    "id": "em-08",
+    "category": "equipos-medicos",
+    "prompt": "Que componente convierte energia electrica en ultrasonido en un ecografo?",
+    "options": [
+      "Transductor",
+      "Compresor",
+      "Regulador lineal",
+      "Interruptor termico"
+    ],
+    "correctIndex": 0,
+    "explanation": "El transductor piezoelectrico emite y recibe ondas ultrasonicas."
+  },
+  {
+    "id": "em-09",
+    "category": "equipos-medicos",
+    "prompt": "Cuando un ventilador mecanico marca alta presion, una causa frecuente es:",
+    "options": [
+      "Linea de infusion vacia",
+      "Obstruccion en via aerea o circuito",
+      "Bateria externa alta",
+      "Sonda de SpO2 desconectada"
+    ],
+    "correctIndex": 1,
+    "explanation": "La obstruccion del circuito o via aerea incrementa la presion de trabajo."
+  },
+  {
+    "id": "em-10",
+    "category": "equipos-medicos",
+    "prompt": "Que describe mejor un electrobisturi?",
+    "options": [
+      "Equipo de imagen por resonancia",
+      "Generador de corriente de alta frecuencia para corte y coagulacion",
+      "Equipo para infusion de farmacos",
+      "Sistema de esterilizacion por gas"
+    ],
+    "correctIndex": 1,
+    "explanation": "El electrobisturi usa energia de alta frecuencia para efectos quirurgicos."
+  },
+  {
+    "id": "ic-01",
+    "category": "ingenieria-clinica",
+    "prompt": "Cual es una funcion central del departamento de ingenieria clinica?",
+    "options": [
+      "Gestionar ciclo de vida de tecnologia medica",
+      "Emitir recetas medicas",
+      "Disenar planos de carreteras",
+      "Administrar laboratorio clinico"
+    ],
+    "correctIndex": 0,
+    "explanation": "Incluye adquisicion, mantenimiento, evaluacion y retiro de equipos."
+  },
+  {
+    "id": "ic-02",
+    "category": "ingenieria-clinica",
+    "prompt": "Que documento es clave para trazabilidad de servicio tecnico?",
+    "options": [
+      "Reporte de mantenimiento",
+      "Volante de publicidad",
+      "Lista de asistencia escolar",
+      "Plano arquitectonico"
+    ],
+    "correctIndex": 0,
+    "explanation": "El reporte registra hallazgos, acciones, pruebas y responsables."
+  },
+  {
+    "id": "ic-03",
+    "category": "ingenieria-clinica",
+    "prompt": "La priorizacion de mantenimiento suele considerar:",
+    "options": [
+      "Color del equipo",
+      "Criticidad clinica y riesgo",
+      "Marca de mobiliario",
+      "Antiguedad del edificio unicamente"
+    ],
+    "correctIndex": 1,
+    "explanation": "El riesgo para paciente y continuidad del servicio es el criterio principal."
+  },
+  {
+    "id": "ic-04",
+    "category": "ingenieria-clinica",
+    "prompt": "Que significa MTTR en mantenimiento?",
+    "options": [
+      "Tiempo medio para reparar",
+      "Temperatura maxima de trabajo",
+      "Metodo tecnico de rastreo",
+      "Matriz total de riesgo"
+    ],
+    "correctIndex": 0,
+    "explanation": "MTTR es un indicador de mantenibilidad del parque tecnologico."
+  },
+  {
+    "id": "ic-05",
+    "category": "ingenieria-clinica",
+    "prompt": "Para compra de equipo medico se recomienda incluir:",
+    "options": [
+      "Analisis de costo total de propiedad",
+      "Solo costo inicial",
+      "Solo apariencia del equipo",
+      "Solo opinion de proveedor"
+    ],
+    "correctIndex": 0,
+    "explanation": "Se consideran costos de mantenimiento, consumibles, soporte y capacitacion."
+  },
+  {
+    "id": "ic-06",
+    "category": "ingenieria-clinica",
+    "prompt": "Un inventario tecnico robusto debe contener:",
+    "options": [
+      "Serial, ubicacion y estado del equipo",
+      "Solo fotografia frontal",
+      "Solo nombre comercial",
+      "Solo numero de factura"
+    ],
+    "correctIndex": 0,
+    "explanation": "Datos minimos para control operativo y trazabilidad."
+  },
+  {
+    "id": "ic-07",
+    "category": "ingenieria-clinica",
+    "prompt": "Que aporta un plan de reemplazo tecnologico?",
+    "options": [
+      "Renovacion basada en riesgo y desempeno",
+      "Cambio aleatorio anual",
+      "Sustitucion por moda",
+      "Eliminacion total del mantenimiento"
+    ],
+    "correctIndex": 0,
+    "explanation": "Permite programar reemplazos con criterios tecnicos y financieros."
+  },
+  {
+    "id": "ic-08",
+    "category": "ingenieria-clinica",
+    "prompt": "La capacitacion de usuario clinico ayuda a:",
+    "options": [
+      "Reducir fallas por operacion incorrecta",
+      "Aumentar consumo electrico",
+      "Eliminar necesidad de manuales",
+      "Evitar pruebas funcionales"
+    ],
+    "correctIndex": 0,
+    "explanation": "Una parte de incidentes se origina en uso inadecuado del equipo."
+  },
+  {
+    "id": "ic-09",
+    "category": "ingenieria-clinica",
+    "prompt": "Que indica mejor disponibilidad de un equipo?",
+    "options": [
+      "Porcentaje de tiempo operativo",
+      "Peso del equipo",
+      "Numero de botones",
+      "Longitud del cable de poder"
+    ],
+    "correctIndex": 0,
+    "explanation": "La disponibilidad mide si el equipo esta utilizable cuando se requiere."
+  },
+  {
+    "id": "ic-10",
+    "category": "ingenieria-clinica",
+    "prompt": "En evaluacion post servicio, que valida retorno a uso clinico?",
+    "options": [
+      "Prueba funcional satisfactoria",
+      "Limpieza estetica unicamente",
+      "Cambio de etiqueta de color",
+      "Apagado y encendido simple"
+    ],
+    "correctIndex": 0,
+    "explanation": "El criterio tecnico final es cumplir funcionamiento y seguridad esperados."
+  },
+  {
+    "id": "mt-01",
+    "category": "mantenimiento",
+    "prompt": "Mantenimiento preventivo se realiza para:",
+    "options": [
+      "Disminuir probabilidad de falla",
+      "Reparar solo despues de dano grave",
+      "Aumentar tiempos muertos",
+      "Evitar cualquier registro"
+    ],
+    "correctIndex": 0,
+    "explanation": "El objetivo es anticipar y reducir fallas mediante tareas programadas."
+  },
+  {
+    "id": "mt-02",
+    "category": "mantenimiento",
+    "prompt": "Mantenimiento correctivo inicia cuando:",
+    "options": [
+      "El equipo ya presenta una falla",
+      "Se instala equipo nuevo",
+      "No existe ningun incidente",
+      "Solo hay cambio de turno"
+    ],
+    "correctIndex": 0,
+    "explanation": "Correctivo significa restaurar funcion despues del fallo."
+  },
+  {
+    "id": "mt-03",
+    "category": "mantenimiento",
+    "prompt": "Antes de intervenir un equipo se debe:",
+    "options": [
+      "Asegurar condiciones de seguridad y aislamiento",
+      "Desactivar alarmas permanentes",
+      "Ignorar manual tecnico",
+      "Retirar etiquetas de identificacion"
+    ],
+    "correctIndex": 0,
+    "explanation": "La seguridad del personal y del entorno es prioritaria."
+  },
+  {
+    "id": "mt-04",
+    "category": "mantenimiento",
+    "prompt": "Una orden de trabajo normalmente incluye:",
+    "options": [
+      "Descripcion de falla y acciones realizadas",
+      "Solo nombre del hospital",
+      "Solo hora de comida",
+      "Solo numero telefonico del area"
+    ],
+    "correctIndex": 0,
+    "explanation": "Debe documentar problema, diagnostico, tareas y cierre tecnico."
+  },
+  {
+    "id": "mt-05",
+    "category": "mantenimiento",
+    "prompt": "Que tecnica ayuda a identificar causa raiz?",
+    "options": [
+      "Analisis sistematico de fallas",
+      "Cambio de piezas al azar",
+      "Evitar recopilar evidencia",
+      "Cerrar reporte sin prueba"
+    ],
+    "correctIndex": 0,
+    "explanation": "El analisis de causa evita recurrencias y cambios innecesarios."
+  },
+  {
+    "id": "mt-06",
+    "category": "mantenimiento",
+    "prompt": "En mantenimiento, una refaccion critica es la que:",
+    "options": [
+      "Puede detener un servicio clinico si falta",
+      "Tiene color especial",
+      "Se usa una vez al anio solamente",
+      "No requiere control de inventario"
+    ],
+    "correctIndex": 0,
+    "explanation": "Su disponibilidad impacta continuidad operativa y tiempos de respuesta."
+  },
+  {
+    "id": "mt-07",
+    "category": "mantenimiento",
+    "prompt": "Despues de reparar un monitor, se recomienda:",
+    "options": [
+      "Validar todos los parametros intervenidos",
+      "Entregar sin pruebas",
+      "Borrar historico de eventos",
+      "Modificar inventario sin motivo"
+    ],
+    "correctIndex": 0,
+    "explanation": "La prueba funcional confirma el restablecimiento real del equipo."
+  },
+  {
+    "id": "mt-08",
+    "category": "mantenimiento",
+    "prompt": "Que ayuda a disminuir tiempo de inactividad?",
+    "options": [
+      "Planificacion de rutinas y repuestos",
+      "Atender solo urgencias sin plan",
+      "Eliminar checklist",
+      "Evitar coordinacion con usuarios"
+    ],
+    "correctIndex": 0,
+    "explanation": "Planificar reduce retrasos y mejora disponibilidad."
+  },
+  {
+    "id": "mt-09",
+    "category": "mantenimiento",
+    "prompt": "El historial de fallas sirve para:",
+    "options": [
+      "Detectar patrones y priorizar acciones",
+      "Reemplazar toda documentacion",
+      "Justificar cerrar tickets sin revisar",
+      "Evitar mantenimiento preventivo"
+    ],
+    "correctIndex": 0,
+    "explanation": "Permite decisiones basadas en datos y recurrencia real."
+  },
+  {
+    "id": "mt-10",
+    "category": "mantenimiento",
+    "prompt": "Cual es una buena practica de cierre de trabajo?",
+    "options": [
+      "Registrar evidencia de prueba y estado final",
+      "Cerrar sin firma ni fecha",
+      "Eliminar notas tecnicas",
+      "No informar al area usuaria"
+    ],
+    "correctIndex": 0,
+    "explanation": "El cierre debe dejar trazabilidad completa y comunicacion formal."
+  },
+  {
+    "id": "se-01",
+    "category": "seguridad-electrica",
+    "prompt": "El riesgo principal de una mala puesta a tierra en equipo medico es:",
+    "options": [
+      "Choque electrico al paciente o usuario",
+      "Mejorar la calidad de imagen",
+      "Reducir ruido ambiental",
+      "Aumentar autonomia de bateria"
+    ],
+    "correctIndex": 0,
+    "explanation": "Una tierra deficiente incrementa riesgo de corrientes peligrosas."
+  },
+  {
+    "id": "se-02",
+    "category": "seguridad-electrica",
+    "prompt": "La corriente de fuga debe:",
+    "options": [
+      "Mantenerse dentro de limites normativos",
+      "Ser ignorada si el equipo enciende",
+      "Aumentar con el uso normal",
+      "Medirse solo al final de vida util"
+    ],
+    "correctIndex": 0,
+    "explanation": "Es un parametro de seguridad esencial en pruebas electricas."
+  },
+  {
+    "id": "se-03",
+    "category": "seguridad-electrica",
+    "prompt": "Que instrumento se usa para pruebas de seguridad electrica biomedica?",
+    "options": [
+      "Analizador de seguridad electrica",
+      "Estetoscopio",
+      "Termometro clinico",
+      "Glucometro"
+    ],
+    "correctIndex": 0,
+    "explanation": "Ese analizador evalua fuga, continuidad de tierra y aislamiento."
+  },
+  {
+    "id": "se-04",
+    "category": "seguridad-electrica",
+    "prompt": "Antes de abrir un equipo conectado a red, se debe:",
+    "options": [
+      "Desconectar energia y aplicar procedimiento seguro",
+      "Aumentar brillo de pantalla",
+      "Cambiar etiquetas del equipo",
+      "Ignorar manual de servicio"
+    ],
+    "correctIndex": 0,
+    "explanation": "Control de energia es obligatorio para evitar accidentes."
+  },
+  {
+    "id": "se-05",
+    "category": "seguridad-electrica",
+    "prompt": "Un cable de poder con aislamiento danado implica:",
+    "options": [
+      "Riesgo electrico y necesidad de reemplazo",
+      "Mejor conductividad clinica",
+      "Sin impacto si el equipo funciona",
+      "Solo problema estetico"
+    ],
+    "correctIndex": 0,
+    "explanation": "Un dano fisico en el cable puede exponer partes energizadas."
+  },
+  {
+    "id": "se-06",
+    "category": "seguridad-electrica",
+    "prompt": "La continuidad de tierra verifica:",
+    "options": [
+      "Integridad del camino de proteccion",
+      "Exactitud de presion arterial",
+      "Respuesta de alarmas de infusion",
+      "Calibracion de oximetria"
+    ],
+    "correctIndex": 0,
+    "explanation": "Confirma que la corriente de falla pueda derivarse de forma segura."
+  },
+  {
+    "id": "se-07",
+    "category": "seguridad-electrica",
+    "prompt": "Que accion es correcta ante fuga fuera de limite?",
+    "options": [
+      "Retirar equipo de servicio hasta correccion",
+      "Entregar al usuario sin comentario",
+      "Reducir volumen de alarmas",
+      "Cubrir reporte con nota verbal"
+    ],
+    "correctIndex": 0,
+    "explanation": "No debe usarse clinicamente hasta cumplir criterios de seguridad."
+  },
+  {
+    "id": "se-08",
+    "category": "seguridad-electrica",
+    "prompt": "El uso de extensiones improvisadas en areas criticas:",
+    "options": [
+      "Incrementa riesgo y debe controlarse",
+      "Siempre mejora la seguridad",
+      "Es obligatorio por norma",
+      "Sustituye mantenimiento preventivo"
+    ],
+    "correctIndex": 0,
+    "explanation": "Puede generar sobrecarga, mala tierra y conexiones inseguras."
+  },
+  {
+    "id": "se-09",
+    "category": "seguridad-electrica",
+    "prompt": "Una inspeccion visual de seguridad debe incluir:",
+    "options": [
+      "Cable, enchufe, carcasa y etiquetado",
+      "Solo pantalla",
+      "Solo marca comercial",
+      "Solo numero de serie"
+    ],
+    "correctIndex": 0,
+    "explanation": "La revision fisica temprana detecta fallas de alto riesgo."
+  },
+  {
+    "id": "se-10",
+    "category": "seguridad-electrica",
+    "prompt": "Por que se documentan pruebas de seguridad electrica?",
+    "options": [
+      "Para trazabilidad y evidencia de cumplimiento",
+      "Solo por formato administrativo",
+      "Para evitar mantenimiento",
+      "Para reemplazar pruebas funcionales"
+    ],
+    "correctIndex": 0,
+    "explanation": "La evidencia documentada respalda auditorias y decisiones tecnicas."
+  },
+  {
+    "id": "nb-01",
+    "category": "normativa-basica",
+    "prompt": "La normativa tecnica en equipo medico busca principalmente:",
+    "options": [
+      "Seguridad y desempeno minimo aceptable",
+      "Solo reducir costos",
+      "Evitar registros",
+      "Eliminar capacitacion de usuarios"
+    ],
+    "correctIndex": 0,
+    "explanation": "Las normas establecen requisitos para uso seguro y confiable."
+  },
+  {
+    "id": "nb-02",
+    "category": "normativa-basica",
+    "prompt": "Que tipo de documento suele definir criterios de prueba y aceptacion?",
+    "options": [
+      "Norma o procedimiento tecnico",
+      "Folleto comercial",
+      "Calendario de eventos",
+      "Correo informal"
+    ],
+    "correctIndex": 0,
+    "explanation": "La evaluacion formal debe basarse en documentos tecnicos vigentes."
+  },
+  {
+    "id": "nb-03",
+    "category": "normativa-basica",
+    "prompt": "Una buena practica regulatoria al instalar equipo nuevo es:",
+    "options": [
+      "Realizar pruebas de aceptacion y registrar resultados",
+      "Usarlo sin validacion",
+      "Cambiar serial del fabricante",
+      "Omitir capacitacion inicial"
+    ],
+    "correctIndex": 0,
+    "explanation": "La aceptacion formal confirma que el equipo cumple condiciones de uso."
+  },
+  {
+    "id": "nb-04",
+    "category": "normativa-basica",
+    "prompt": "Que aporta una bitacora de mantenimiento bien llevada?",
+    "options": [
+      "Trazabilidad para auditoria y gestion de riesgo",
+      "Solo archivo historico sin uso",
+      "Reemplaza todas las pruebas",
+      "Evita coordinacion con clinicos"
+    ],
+    "correctIndex": 0,
+    "explanation": "Permite verificar cumplimiento y decisiones basadas en evidencia."
+  },
+  {
+    "id": "nb-05",
+    "category": "normativa-basica",
+    "prompt": "En un reporte tecnico, la firma de responsable indica:",
+    "options": [
+      "Responsabilidad y validacion del servicio",
+      "Decoracion del documento",
+      "Permiso para omitir pruebas",
+      "Sustitucion del numero de serie"
+    ],
+    "correctIndex": 0,
+    "explanation": "La firma formaliza cierre y responsabilidad del trabajo ejecutado."
+  },
+  {
+    "id": "nb-06",
+    "category": "normativa-basica",
+    "prompt": "La gestion documental en hospital debe priorizar:",
+    "options": [
+      "Version vigente, control de cambios y acceso",
+      "Guardar copias sin fecha",
+      "Eliminar registros antiguos sin criterio",
+      "Usar solo formatos verbales"
+    ],
+    "correctIndex": 0,
+    "explanation": "Control documental reduce errores por uso de informacion obsoleta."
+  },
+  {
+    "id": "nb-07",
+    "category": "normativa-basica",
+    "prompt": "Que describe mejor una no conformidad tecnica?",
+    "options": [
+      "Incumplimiento de requisito definido",
+      "Preferencia personal del operador",
+      "Cambio de turno normal",
+      "Actualizacion de fondo de pantalla"
+    ],
+    "correctIndex": 0,
+    "explanation": "Existe cuando un requisito normativo o procedimental no se cumple."
+  },
+  {
+    "id": "nb-08",
+    "category": "normativa-basica",
+    "prompt": "Una accion correctiva busca:",
+    "options": [
+      "Eliminar causa de una no conformidad",
+      "Solo archivar el incidente",
+      "Incrementar fallas recurrentes",
+      "Sustituir mantenimiento preventivo"
+    ],
+    "correctIndex": 0,
+    "explanation": "Debe atacar causa raiz para evitar repeticion del problema."
+  },
+  {
+    "id": "nb-09",
+    "category": "normativa-basica",
+    "prompt": "La calibracion periodica en equipos de medicion permite:",
+    "options": [
+      "Confiabilidad metrologica de resultados",
+      "Aumentar peso del equipo",
+      "Reducir necesidad de limpieza",
+      "Eliminar entrenamiento tecnico"
+    ],
+    "correctIndex": 0,
+    "explanation": "La calibracion asegura exactitud dentro de tolerancias aceptadas."
+  },
+  {
+    "id": "nb-10",
+    "category": "normativa-basica",
+    "prompt": "En auditoria interna, se revisa principalmente:",
+    "options": [
+      "Cumplimiento de procesos y registros",
+      "Diseno del uniforme institucional",
+      "Cantidad de carteles en pasillos",
+      "Color de las oficinas"
+    ],
+    "correctIndex": 0,
+    "explanation": "La auditoria evalua evidencia objetiva de cumplimiento operativo."
+  }
+]

@@ -1,0 +1,28 @@
+
+> biomed-quiz-arena@0.1.0 dev
+> next dev --port 3002
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3002
+- Network:       http://172.28.128.1:3002
+✓ Ready in 504ms
+
+ GET / 200 in 1856ms (next.js: 1648ms, application-code: 207ms)
+ GET / 200 in 123ms (next.js: 18ms, application-code: 106ms)
+ GET / 200 in 54ms (next.js: 5ms, application-code: 49ms)
+ GET /categories 200 in 597ms (next.js: 494ms, application-code: 103ms)
+ GET /quiz/equipos-medicos 200 in 1278ms (next.js: 1183ms, generate-params: 771ms, application-code: 94ms)
+✓ Compiled in 237ms
+ GET / 200 in 464ms (next.js: 262ms, application-code: 202ms)
+ GET / 200 in 70ms (next.js: 11ms, application-code: 59ms)
+✓ Compiled in 193ms
+ GET / 200 in 278ms (next.js: 156ms, application-code: 121ms)
+✓ Compiled in 204ms
+✓ Compiled in 68ms
+ GET / 200 in 474ms (next.js: 220ms, application-code: 254ms)
+✓ Compiled in 1830ms
+✓ Compiled in 50ms
+✓ Compiled in 228ms
+ GET /categories 200 in 1078ms (next.js: 502ms, application-code: 576ms)
+✓ Compiled in 221ms
+✓ Compiled in 108ms
