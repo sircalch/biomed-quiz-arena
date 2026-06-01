@@ -6,7 +6,9 @@ import {
   CloudDownload,
   Gauge,
   RefreshCw,
+  Timer,
   Trophy,
+  User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -43,6 +45,10 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
     "Selecciona una respuesta para continuar.",
   );
   const [feedbackTone, setFeedbackTone] = useState<FeedbackTone>("info");
+  const [timedMode, setTimedMode] = useState(true);
+  const [questionDuration, setQuestionDuration] = useState(35);
+  const [timeLeft, setTimeLeft] = useState(35);
+  const [participantAlias, setParticipantAlias] = useState("Invitado");
   const [sessionSyncStatus, setSessionSyncStatus] =
     useState<SessionSyncStatus>("idle");
   const [sessionStorage, setSessionStorage] = useState<"memory" | "supabase" | null>(
@@ -108,6 +114,43 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
     return `${currentIndex + 1}/${totalQuestions}`;
   }, [currentIndex, totalQuestions]);
 
+  useEffect(() => {
+    const savedAlias = window.localStorage.getItem("biomed_quiz_participant_alias");
+    if (!savedAlias) {
+      return;
+    }
+    setParticipantAlias(savedAlias);
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("biomed_quiz_participant_alias", participantAlias);
+  }, [participantAlias]);
+
+  useEffect(() => {
+    if (!timedMode || locked || !question) {
+      return;
+    }
+
+    setTimeLeft(questionDuration);
+    const timer = window.setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          window.clearInterval(timer);
+          setLocked(true);
+          setCurrentStreak(0);
+          setFeedbackTone("warning");
+          setFeedbackMessage(
+            "Tiempo agotado. Revisa la explicacion y continua con la siguiente pregunta.",
+          );
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [timedMode, questionDuration, locked, question, currentIndex]);
+
   const handleSelect = (optionIndex: number) => {
     if (locked || !question) {
       return;
@@ -155,7 +198,7 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
             id: crypto.randomUUID(),
             category: category.slug,
             categoryName: category.name,
-            participantAlias: "Invitado",
+            participantAlias: participantAlias.trim() || "Invitado",
             score: finalScore,
             total: totalQuestions * 10,
             correctCount: finalCorrectCount,
@@ -232,6 +275,22 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
             </h2>
             <p className="text-sm font-medium text-slate-700">{progressLabel}</p>
           </div>
+          <label className="mt-2 block text-sm text-slate-700">
+            Alias de participante
+            <span className="relative mt-1 block">
+              <User
+                className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                aria-hidden="true"
+              />
+              <input
+                value={participantAlias}
+                onChange={(event) => setParticipantAlias(event.target.value)}
+                maxLength={32}
+                placeholder="Nombre o alias"
+                className="w-full rounded-md border border-slate-300 bg-white py-2 pl-8 pr-3 text-sm text-slate-900"
+              />
+            </span>
+          </label>
           <p className="mt-1 text-sm text-slate-700">
             Categoria: <span className="font-medium text-slate-900">{category.name}</span>
           </p>
@@ -302,6 +361,39 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
           <p className="text-sm text-slate-700">
             Mejor racha: <span className="font-medium text-slate-900">{bestStreak}</span>
           </p>
+          <div className="mt-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+            <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <Timer className="h-4 w-4" aria-hidden="true" />
+              Modo de tiempo
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                aria-pressed={timedMode}
+                onClick={() => setTimedMode((prev) => !prev)}
+                className={`inline-flex min-h-8 items-center justify-center rounded-md border px-2.5 py-1 text-xs font-medium transition ${
+                  timedMode
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                {timedMode ? "Activo" : "Sin limite"}
+              </button>
+              <select
+                value={questionDuration}
+                onChange={(event) => setQuestionDuration(Number(event.target.value))}
+                disabled={!timedMode}
+                className="min-h-8 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value={20}>20s</option>
+                <option value={35}>35s</option>
+                <option value={50}>50s</option>
+              </select>
+              <p className="text-xs text-slate-700">
+                {timedMode ? `Restante: ${timeLeft}s` : "Tiempo libre"}
+              </p>
+            </div>
+          </div>
           <p className="mt-3 inline-flex items-center gap-2 border-t border-slate-200 pt-3 text-xs text-slate-600">
             <Trophy className="h-4 w-4" aria-hidden="true" />
             Cada pregunta se bloquea despues de responder.
