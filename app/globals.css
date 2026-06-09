@@ -5,7 +5,7 @@
   --foreground: #0f172a;
   --surface: #ffffff;
   --border: #dde3ec;
-  --focus-ring: #b45309;
+  --focus-ring: #2563eb;
 }
 
 @theme inline {
@@ -18,9 +18,9 @@
 
 body {
   background:
-    radial-gradient(circle at 8% -10%, #ffedd5 0%, transparent 26%),
-    radial-gradient(circle at 90% -18%, #fde68a 0%, transparent 22%),
-    linear-gradient(180deg, #fbfdff 0%, #f7f8fc 52%, #f1f5f9 100%),
+    radial-gradient(circle at 8% -10%, #dbeafe 0%, transparent 24%),
+    radial-gradient(circle at 90% -18%, #e0f2fe 0%, transparent 22%),
+    linear-gradient(180deg, #fbfdff 0%, #f7f8fc 52%, #eef4fb 100%),
     var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
@@ -55,6 +55,6 @@ textarea {
 }
 
 ::selection {
-  background: #fde68a;
-  color: #78350f;
+  background: #bfdbfe;
+  color: #172554;
 }

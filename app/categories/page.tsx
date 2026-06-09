@@ -23,7 +23,8 @@ export default function CategoriesPage() {
             Selecciona una categoria
           </h1>
           <p className="mt-3 max-w-3xl text-slate-600">
-            Cada categoria incluye 10 preguntas con retroalimentacion inmediata.
+            Banco academico con 10 categorias, explicaciones tecnicas y modos
+            de estudio, reto y examen.
           </p>
           <section className="mt-4 grid gap-3 rounded-md border border-slate-200 bg-white p-4 sm:grid-cols-3">
             <article className="rounded-md border border-slate-200 bg-slate-50 p-3">
@@ -43,9 +44,11 @@ export default function CategoriesPage() {
             <article className="rounded-md border border-slate-200 bg-slate-50 p-3">
               <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <Trophy className="h-4 w-4" aria-hidden="true" />
-                Puntaje maximo
+                Modos
               </p>
-              <p className="mt-1 text-lg font-semibold text-slate-900">{totalQuestions * 10}</p>
+              <p className="mt-1 text-lg font-semibold text-slate-900">
+                Estudio | Reto | Examen
+              </p>
             </article>
           </section>
         </header>
@@ -54,7 +57,7 @@ export default function CategoriesPage() {
           <QuizInsightsPanel />
         </div>
 
-        <section className="grid gap-4 md:grid-cols-2">
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {categories.map((category) => (
             <CategoryCard
               key={category.slug}

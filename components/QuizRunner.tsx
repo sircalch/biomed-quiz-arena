@@ -2,8 +2,11 @@
 
 import {
   ArrowRight,
+  BookOpenCheck,
   ChartNoAxesColumn,
   CloudDownload,
+  ExternalLink,
+  FileText,
   Gauge,
   RefreshCw,
   Timer,
@@ -15,22 +18,119 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ProgressBar } from "@/components/ProgressBar";
 import { QuestionCard } from "@/components/QuestionCard";
-import { getScoreFromCorrect } from "@/lib/scoring";
-import { QuizCategory, QuizQuestion } from "@/types/quiz";
+import { getScoreFromCorrect, getScorePercent } from "@/lib/scoring";
+import {
+  CategorySlug,
+  QuizAnswer,
+  QuizCategory,
+  QuizDifficulty,
+  QuizMode,
+  QuizQuestion,
+} from "@/types/quiz";
 
 type QuizRunnerProps = {
   category: QuizCategory;
   questions: QuizQuestion[];
+  mode: QuizMode;
+  difficulty: QuizDifficulty | "all";
 };
 
 type FeedbackTone = "info" | "success" | "warning";
 type SessionSyncStatus = "idle" | "saving" | "saved" | "error";
+type QuestionSource = "seed" | "remote";
 
-export function QuizRunner({ category, questions }: QuizRunnerProps) {
+type LocalQuizResult = {
+  category: CategorySlug;
+  categoryName: string;
+  mode: QuizMode;
+  difficulty: QuizDifficulty | "all";
+  score: number;
+  total: number;
+  percent: number;
+  correctCount: number;
+  bestStreak: number;
+  completedAt: string;
+};
+
+const LOCAL_RESULTS_KEY = "biomed_quiz_results_v2";
+const CASE_SIMULATOR_URL =
+  process.env.NEXT_PUBLIC_CASE_SIMULATOR_URL ||
+  "https://biomed-case-simulator.vercel.app";
+const REPORT_BUILDER_URL =
+  process.env.NEXT_PUBLIC_REPORT_BUILDER_URL ||
+  "https://clinical-report-builder.vercel.app";
+
+const MODE_LABEL: Record<QuizMode, string> = {
+  study: "Modo estudio",
+  challenge: "Modo reto",
+  exam: "Modo examen",
+};
+
+const MODE_HELP: Record<QuizMode, string> = {
+  study: "Feedback inmediato con explicacion tecnica.",
+  challenge: "Temporizador, racha y respuesta rapida para clase.",
+  exam: "Sin revelar respuestas hasta el resultado final.",
+};
+
+const DIFFICULTY_LABEL: Record<QuizDifficulty | "all", string> = {
+  all: "Todas",
+  basic: "Basica",
+  intermediate: "Intermedia",
+  advanced: "Avanzada",
+};
+
+function initialFeedback(mode: QuizMode): string {
+  if (mode === "exam") {
+    return "Selecciona una respuesta. La explicacion se mostrara al finalizar.";
+  }
+  if (mode === "challenge") {
+    return "Selecciona una respuesta antes de que termine el tiempo.";
+  }
+  return "Selecciona una respuesta para recibir retroalimentacion inmediata.";
+}
+
+function computeBestStreak(answers: QuizAnswer[]): number {
+  let current = 0;
+  let best = 0;
+
+  for (const answer of answers) {
+    if (answer.isCorrect) {
+      current += 1;
+      best = Math.max(best, current);
+    } else {
+      current = 0;
+    }
+  }
+
+  return best;
+}
+
+function saveLocalResult(result: LocalQuizResult) {
+  const raw = window.localStorage.getItem(LOCAL_RESULTS_KEY);
+  const previous = raw ? (JSON.parse(raw) as LocalQuizResult[]) : [];
+  const next = [result, ...previous].slice(0, 50);
+  window.localStorage.setItem(LOCAL_RESULTS_KEY, JSON.stringify(next));
+}
+
+function buildCaseUrl(category: CategorySlug): string {
+  const url = new URL(CASE_SIMULATOR_URL);
+  url.searchParams.set("category", category);
+  return url.toString();
+}
+
+function buildReportUrl(category: CategorySlug, score: number): string {
+  const url = new URL(REPORT_BUILDER_URL);
+  url.searchParams.set("activity", "quiz");
+  url.searchParams.set("category", category);
+  url.searchParams.set("score", String(score));
+  return url.toString();
+}
+
+export function QuizRunner({ category, questions, mode, difficulty }: QuizRunnerProps) {
   const router = useRouter();
 
   const [activeQuestions, setActiveQuestions] = useState<QuizQuestion[]>(questions);
-  const [questionSource, setQuestionSource] = useState<"seed" | "remote">("seed");
+  const [questionSource, setQuestionSource] = useState<QuestionSource>("seed");
   const [questionLoadStatus, setQuestionLoadStatus] = useState<
     "idle" | "loading" | "error"
   >("idle");
@@ -38,14 +138,12 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [locked, setLocked] = useState(false);
+  const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [correctCount, setCorrectCount] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
-  const [feedbackMessage, setFeedbackMessage] = useState(
-    "Selecciona una respuesta para continuar.",
-  );
+  const [feedbackMessage, setFeedbackMessage] = useState(initialFeedback(mode));
   const [feedbackTone, setFeedbackTone] = useState<FeedbackTone>("info");
-  const [timedMode, setTimedMode] = useState(true);
   const [questionDuration, setQuestionDuration] = useState(35);
   const [timeLeft, setTimeLeft] = useState(35);
   const [participantAlias, setParticipantAlias] = useState("Invitado");
@@ -58,15 +156,42 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
   const totalQuestions = activeQuestions.length;
   const question = activeQuestions[currentIndex];
   const score = getScoreFromCorrect(correctCount);
+  const percent = getScorePercent(score, totalQuestions * 10);
+  const isChallenge = mode === "challenge";
   const canContinue = locked;
+
+  const resetSession = useCallback(
+    (nextQuestions: QuizQuestion[], source: QuestionSource) => {
+      setActiveQuestions(nextQuestions);
+      setQuestionSource(source);
+      setCurrentIndex(0);
+      setSelectedIndex(null);
+      setLocked(false);
+      setAnswers([]);
+      setCorrectCount(0);
+      setCurrentStreak(0);
+      setBestStreak(0);
+      setFeedbackTone("info");
+      setFeedbackMessage(initialFeedback(mode));
+      setTimeLeft(questionDuration);
+      setSessionSyncStatus("idle");
+      setSessionStorage(null);
+    },
+    [mode, questionDuration],
+  );
 
   const loadRemoteQuestions = useCallback(async () => {
     setQuestionLoadStatus("loading");
     try {
-      const response = await fetch(
-        `/api/quiz/questions?category=${category.slug}&limit=10&shuffle=1`,
-        { cache: "no-store" },
-      );
+      const params = new URLSearchParams({
+        category: category.slug,
+        limit: "10",
+        shuffle: "1",
+        difficulty,
+      });
+      const response = await fetch(`/api/quiz/questions?${params.toString()}`, {
+        cache: "no-store",
+      });
 
       if (!response.ok) {
         throw new Error("No se pudo cargar el banco remoto.");
@@ -79,25 +204,13 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
         throw new Error("El banco remoto no devolvio preguntas.");
       }
 
-      setActiveQuestions(payload.questions);
-      setQuestionSource("remote");
+      resetSession(payload.questions, "remote");
       setQuestionLoadStatus("idle");
-      setCurrentIndex(0);
-      setSelectedIndex(null);
-      setLocked(false);
-      setCorrectCount(0);
-      setCurrentStreak(0);
-      setBestStreak(0);
-      setFeedbackTone("info");
-      setFeedbackMessage("Selecciona una respuesta para continuar.");
-      setSessionSyncStatus("idle");
-      setSessionStorage(null);
     } catch {
+      resetSession(questions, "seed");
       setQuestionLoadStatus("error");
-      setActiveQuestions(questions);
-      setQuestionSource("seed");
     }
-  }, [category.slug, questions]);
+  }, [category.slug, difficulty, questions, resetSession]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -116,18 +229,66 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
 
   useEffect(() => {
     const savedAlias = window.localStorage.getItem("biomed_quiz_participant_alias");
-    if (!savedAlias) {
-      return;
+    if (savedAlias) {
+      setParticipantAlias(savedAlias);
     }
-    setParticipantAlias(savedAlias);
   }, []);
 
   useEffect(() => {
     window.localStorage.setItem("biomed_quiz_participant_alias", participantAlias);
   }, [participantAlias]);
 
+  const commitAnswer = useCallback(
+    (optionIndex: number | null) => {
+      if (locked || !question) {
+        return;
+      }
+
+      const isCorrect = optionIndex === question.correctOptionIndex;
+      const nextStreak = isCorrect ? currentStreak + 1 : 0;
+      const nextAnswer: QuizAnswer = {
+        questionId: question.id,
+        category: question.category,
+        selectedIndex: optionIndex ?? -1,
+        correctOptionIndex: question.correctOptionIndex,
+        isCorrect,
+        difficulty: question.difficulty,
+      };
+
+      setAnswers((prev) => [...prev, nextAnswer]);
+      setSelectedIndex(optionIndex);
+      setLocked(true);
+      setCurrentStreak(nextStreak);
+      setBestStreak((prev) => Math.max(prev, nextStreak));
+
+      if (isCorrect) {
+        setCorrectCount((prev) => prev + 1);
+      }
+
+      if (mode === "exam") {
+        setFeedbackTone("info");
+        setFeedbackMessage(
+          "Respuesta registrada. La retroalimentacion tecnica se concentrara en el resultado final.",
+        );
+        return;
+      }
+
+      if (optionIndex === null) {
+        setFeedbackTone("warning");
+        setFeedbackMessage(`Tiempo agotado. ${question.explanation}`);
+        return;
+      }
+
+      setFeedbackTone(isCorrect ? "success" : "warning");
+      setFeedbackMessage(
+        `${isCorrect ? "Respuesta correcta." : "Respuesta incorrecta."} ${question.explanation}`,
+      );
+    },
+    [currentStreak, locked, mode, question],
+  );
+
   useEffect(() => {
-    if (!timedMode || locked || !question) {
+    if (!isChallenge || locked || !question) {
       return;
     }
 
@@ -136,12 +297,7 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           window.clearInterval(timer);
-          setLocked(true);
-          setCurrentStreak(0);
-          setFeedbackTone("warning");
-          setFeedbackMessage(
-            "Tiempo agotado. Revisa la explicacion y continua con la siguiente pregunta.",
-          );
+          commitAnswer(null);
           return 0;
         }
         return prev - 1;
@@ -149,31 +305,7 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [timedMode, questionDuration, locked, question, currentIndex]);
-
-  const handleSelect = (optionIndex: number) => {
-    if (locked || !question) {
-      return;
-    }
-
-    const isCorrect = optionIndex === question.correctIndex;
-    const nextStreak = isCorrect ? currentStreak + 1 : 0;
-
-    setSelectedIndex(optionIndex);
-    setLocked(true);
-    setCurrentStreak(nextStreak);
-    setBestStreak((prev) => Math.max(prev, nextStreak));
-
-    if (isCorrect) {
-      setCorrectCount((prev) => prev + 1);
-      setFeedbackTone("success");
-      setFeedbackMessage(`Correcto. ${question.explanation}`);
-      return;
-    }
-
-    setFeedbackTone("warning");
-    setFeedbackMessage(`Incorrecto. ${question.explanation}`);
-  };
+  }, [commitAnswer, isChallenge, locked, question, questionDuration, currentIndex]);
 
   const goNext = async () => {
     if (!canContinue || !question) {
@@ -182,10 +314,26 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
 
     const isLastQuestion = currentIndex === totalQuestions - 1;
     if (isLastQuestion) {
-      const finalCorrectCount = correctCount;
+      const finalCorrectCount = answers.filter((answer) => answer.isCorrect).length;
       const finalScore = getScoreFromCorrect(finalCorrectCount);
+      const finalTotal = totalQuestions * 10;
+      const finalPercent = getScorePercent(finalScore, finalTotal);
+      const finalBestStreak = computeBestStreak(answers);
       const completedAt = new Date().toISOString();
       let storage: "memory" | "supabase" | "unknown" = "unknown";
+
+      saveLocalResult({
+        category: category.slug,
+        categoryName: category.name,
+        mode,
+        difficulty,
+        score: finalScore,
+        total: finalTotal,
+        percent: finalPercent,
+        correctCount: finalCorrectCount,
+        bestStreak: finalBestStreak,
+        completedAt,
+      });
 
       setSessionSyncStatus("saving");
       try {
@@ -200,9 +348,9 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
             categoryName: category.name,
             participantAlias: participantAlias.trim() || "Invitado",
             score: finalScore,
-            total: totalQuestions * 10,
+            total: finalTotal,
             correctCount: finalCorrectCount,
-            bestStreak,
+            bestStreak: finalBestStreak,
             completedAt,
           }),
         });
@@ -226,10 +374,12 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
       const params = new URLSearchParams({
         category: category.slug,
         categoryName: category.name,
+        mode,
+        difficulty,
         score: String(finalScore),
-        total: String(totalQuestions * 10),
+        total: String(finalTotal),
         correctCount: String(finalCorrectCount),
-        bestStreak: String(bestStreak),
+        bestStreak: String(finalBestStreak),
         sessionStorage: storage,
       });
       router.push(`/result?${params.toString()}`);
@@ -240,7 +390,7 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
     setSelectedIndex(null);
     setLocked(false);
     setFeedbackTone("info");
-    setFeedbackMessage("Selecciona una respuesta para continuar.");
+    setFeedbackMessage(initialFeedback(mode));
   };
 
   if (!question) {
@@ -250,12 +400,12 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
           No hay preguntas disponibles
         </h2>
         <p className="mt-2 text-sm text-slate-700">
-          Reintenta cargar el banco de preguntas para esta categoria.
+          Cambia la dificultad o recarga el banco de preguntas para esta categoria.
         </p>
         <button
           type="button"
           onClick={() => void loadRemoteQuestions()}
-          className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+          className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-800"
         >
           <RefreshCw className="h-4 w-4" aria-hidden="true" />
           Reintentar carga
@@ -267,7 +417,7 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
   return (
     <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
       <div className="space-y-4">
-        <section className="rounded-md border border-slate-200 bg-white px-4 py-3">
+        <section className="rounded-md border border-blue-100 bg-white px-4 py-3 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
               <Gauge className="h-4 w-4" aria-hidden="true" />
@@ -291,12 +441,18 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
               />
             </span>
           </label>
-          <p className="mt-1 text-sm text-slate-700">
-            Categoria: <span className="font-medium text-slate-900">{category.name}</span>
-          </p>
-          <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">
-            Dataset: {questionSource}
-          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="rounded-md border border-blue-100 bg-blue-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
+              {MODE_LABEL[mode]}
+            </span>
+            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+              Dificultad {DIFFICULTY_LABEL[difficulty]}
+            </span>
+            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+              Dataset {questionSource}
+            </span>
+          </div>
+          <p className="mt-2 text-sm text-slate-600">{MODE_HELP[mode]}</p>
           {questionLoadStatus === "loading" ? (
             <p className="mt-1 text-xs text-slate-600">Sincronizando preguntas...</p>
           ) : null}
@@ -313,7 +469,8 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
           totalQuestions={totalQuestions}
           selectedIndex={selectedIndex}
           locked={locked}
-          onSelect={handleSelect}
+          revealAnswer={mode !== "exam" && locked}
+          onSelect={commitAnswer}
         />
 
         <section
@@ -322,7 +479,7 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
               : feedbackTone === "warning"
                 ? "border-amber-200 bg-amber-50 text-amber-800"
-                : "border-slate-200 bg-slate-50 text-slate-700"
+                : "border-blue-100 bg-blue-50 text-blue-800"
           }`}
         >
           {feedbackMessage}
@@ -332,7 +489,7 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
           type="button"
           onClick={() => void goNext()}
           disabled={!canContinue || sessionSyncStatus === "saving"}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition enabled:hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white transition enabled:hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
           {currentIndex === totalQuestions - 1 ? "Finalizar quiz" : "Siguiente"}
@@ -340,60 +497,54 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
       </div>
 
       <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-        <section className="rounded-lg border border-slate-200 bg-white p-4">
+        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
             <ChartNoAxesColumn className="h-4 w-4" aria-hidden="true" />
-            Estado del quiz
+            Rendimiento
           </h2>
-          <p className="mt-2 text-sm text-slate-700">
-            Categoria: <span className="font-medium text-slate-900">{category.name}</span>
-          </p>
-          <p className="text-sm text-slate-700">
-            Puntaje:{" "}
-            <span className="font-medium text-slate-900">
-              {score}/{totalQuestions * 10}
-            </span>
-          </p>
-          <p className="text-sm text-slate-700">
-            Racha actual:{" "}
-            <span className="font-medium text-slate-900">{currentStreak}</span>
-          </p>
-          <p className="text-sm text-slate-700">
-            Mejor racha: <span className="font-medium text-slate-900">{bestStreak}</span>
-          </p>
-          <div className="mt-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
-            <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-              <Timer className="h-4 w-4" aria-hidden="true" />
-              Modo de tiempo
-            </p>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                aria-pressed={timedMode}
-                onClick={() => setTimedMode((prev) => !prev)}
-                className={`inline-flex min-h-8 items-center justify-center rounded-md border px-2.5 py-1 text-xs font-medium transition ${
-                  timedMode
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
-                }`}
-              >
-                {timedMode ? "Activo" : "Sin limite"}
-              </button>
-              <select
-                value={questionDuration}
-                onChange={(event) => setQuestionDuration(Number(event.target.value))}
-                disabled={!timedMode}
-                className="min-h-8 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value={20}>20s</option>
-                <option value={35}>35s</option>
-                <option value={50}>50s</option>
-              </select>
-              <p className="text-xs text-slate-700">
-                {timedMode ? `Restante: ${timeLeft}s` : "Tiempo libre"}
-              </p>
+          <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
+            <div className="rounded-md border border-slate-200 bg-slate-50 p-2">
+              <dt className="text-xs uppercase tracking-wide text-slate-500">Puntaje</dt>
+              <dd className="mt-1 font-semibold text-slate-900">
+                {score}/{totalQuestions * 10}
+              </dd>
             </div>
-          </div>
+            <div className="rounded-md border border-slate-200 bg-slate-50 p-2">
+              <dt className="text-xs uppercase tracking-wide text-slate-500">Avance</dt>
+              <dd className="mt-1 font-semibold text-slate-900">{percent}%</dd>
+            </div>
+            <div className="rounded-md border border-slate-200 bg-slate-50 p-2">
+              <dt className="text-xs uppercase tracking-wide text-slate-500">Racha</dt>
+              <dd className="mt-1 font-semibold text-slate-900">{currentStreak}</dd>
+            </div>
+            <div className="rounded-md border border-slate-200 bg-slate-50 p-2">
+              <dt className="text-xs uppercase tracking-wide text-slate-500">Mejor</dt>
+              <dd className="mt-1 font-semibold text-slate-900">{bestStreak}</dd>
+            </div>
+          </dl>
+
+          {isChallenge ? (
+            <div className="mt-3 rounded-md border border-blue-100 bg-blue-50 px-3 py-2">
+              <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-700">
+                <Timer className="h-4 w-4" aria-hidden="true" />
+                Temporizador
+              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <select
+                  value={questionDuration}
+                  onChange={(event) => setQuestionDuration(Number(event.target.value))}
+                  disabled={locked}
+                  className="min-h-8 rounded-md border border-blue-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value={20}>20s</option>
+                  <option value={35}>35s</option>
+                  <option value={50}>50s</option>
+                </select>
+                <p className="text-xs font-semibold text-blue-800">Restante: {timeLeft}s</p>
+              </div>
+            </div>
+          ) : null}
+
           <p className="mt-3 inline-flex items-center gap-2 border-t border-slate-200 pt-3 text-xs text-slate-600">
             <Trophy className="h-4 w-4" aria-hidden="true" />
             Cada pregunta se bloquea despues de responder.
@@ -410,8 +561,8 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
             >
               {sessionSyncStatus === "saved"
                 ? sessionStorage === "memory"
-                  ? "Sesion registrada en memoria temporal (no persistente en Vercel)."
-                  : "Sesion registrada en supabase."
+                  ? "Sesion registrada en memoria temporal."
+                  : "Sesion registrada en Supabase."
                 : sessionSyncStatus === "saving"
                   ? "Guardando sesion..."
                   : "No se pudo guardar la sesion."}
@@ -419,11 +570,38 @@ export function QuizRunner({ category, questions }: QuizRunnerProps) {
           ) : null}
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4">
+        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <ProgressBar current={currentIndex + 1} total={totalQuestions} />
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4">
+        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
+            <BookOpenCheck className="h-4 w-4" aria-hidden="true" />
+            Flujo academico
+          </h2>
+          <div className="mt-3 grid gap-2">
+            <a
+              href={buildCaseUrl(category.slug)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-800 transition hover:bg-blue-100"
+            >
+              Practicar caso relacionado
+              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+            </a>
+            <a
+              href={buildReportUrl(category.slug, score)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+            >
+              Generar evidencia de actividad
+              <FileText className="h-4 w-4" aria-hidden="true" />
+            </a>
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
             <CloudDownload className="h-4 w-4" aria-hidden="true" />
             Banco de preguntas

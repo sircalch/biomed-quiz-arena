@@ -2,17 +2,24 @@ export function getScoreFromCorrect(correctCount: number): number {
   return correctCount * 10;
 }
 
-export function getPerformanceLabel(score: number): string {
-  if (score >= 90) {
+export function getPerformanceLabel(percent: number): string {
+  if (percent >= 90) {
     return "Excelente";
   }
-  if (score >= 70) {
+  if (percent >= 75) {
     return "Muy bien";
   }
-  if (score >= 50) {
-    return "Buen inicio";
+  if (percent >= 60) {
+    return "Buen avance";
   }
   return "Sigue practicando";
+}
+
+export function getScorePercent(score: number, total: number): number {
+  if (total <= 0) {
+    return 0;
+  }
+  return Number(((score / total) * 100).toFixed(1));
 }
 
 export function buildShareSummary(input: {
@@ -21,5 +28,6 @@ export function buildShareSummary(input: {
   total: number;
   bestStreak: number;
 }): string {
-  return `BioMed Quiz Arena | ${input.categoryName} | Puntaje ${input.score}/${input.total} | Mejor racha ${input.bestStreak}`;
+  const percent = getScorePercent(input.score, input.total);
+  return `BioMed Quiz Arena | ${input.categoryName} | Puntaje ${input.score}/${input.total} (${percent}%) | Mejor racha ${input.bestStreak}`;
 }

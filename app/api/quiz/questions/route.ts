@@ -1,6 +1,11 @@
 import { NextRequest } from "next/server";
 
-import { getQuestionsByCategory, isCategorySlug } from "@/lib/quiz-engine";
+import {
+  getQuestionsByCategory,
+  isCategorySlug,
+  isQuizDifficulty,
+} from "@/lib/quiz-engine";
+import { QuizDifficulty } from "@/types/quiz";
 
 function parseLimit(value: string | null): number {
   const parsed = Number(value ?? "");
@@ -12,6 +17,13 @@ function parseLimit(value: string | null): number {
 
 function parseShuffle(value: string | null): boolean {
   return value === "1" || value?.toLowerCase() === "true";
+}
+
+function parseDifficulty(value: string | null): QuizDifficulty | "all" {
+  if (!value || value === "all") {
+    return "all";
+  }
+  return isQuizDifficulty(value) ? value : "all";
 }
 
 function shuffle<T>(items: T[]): T[] {
@@ -36,13 +48,15 @@ export async function GET(request: NextRequest) {
 
   const limit = parseLimit(request.nextUrl.searchParams.get("limit"));
   const shouldShuffle = parseShuffle(request.nextUrl.searchParams.get("shuffle"));
+  const difficulty = parseDifficulty(request.nextUrl.searchParams.get("difficulty"));
 
-  const base = getQuestionsByCategory(category);
+  const base = getQuestionsByCategory(category, difficulty);
   const questions = shouldShuffle ? shuffle(base).slice(0, limit) : base.slice(0, limit);
 
   return Response.json({
     source: "seed",
     category,
+    difficulty,
     count: questions.length,
     questions,
   });
