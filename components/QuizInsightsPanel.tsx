@@ -120,7 +120,9 @@ export function QuizInsightsPanel() {
             </p>
           </article>
           <article className="rounded-md border border-slate-200 bg-slate-50 p-2.5">
-            <p className="text-[11px] uppercase tracking-wide text-slate-500">Mejor score</p>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500">
+              Mejor puntaje
+            </p>
             <p className="mt-1 text-base font-semibold text-slate-900">
               {stats.bestScorePercent}%
             </p>

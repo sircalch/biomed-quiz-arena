@@ -6,7 +6,6 @@ import {
   ChartNoAxesColumn,
   CloudDownload,
   ExternalLink,
-  FileText,
   Gauge,
   RefreshCw,
   Timer,
@@ -56,9 +55,6 @@ const LOCAL_RESULTS_KEY = "biomed_quiz_results_v2";
 const CASE_SIMULATOR_URL =
   process.env.NEXT_PUBLIC_CASE_SIMULATOR_URL ||
   "https://biomed-case-simulator.vercel.app";
-const REPORT_BUILDER_URL =
-  process.env.NEXT_PUBLIC_REPORT_BUILDER_URL ||
-  "https://clinical-report-builder.vercel.app";
 
 const MODE_LABEL: Record<QuizMode, string> = {
   study: "Modo estudio",
@@ -106,8 +102,14 @@ function computeBestStreak(answers: QuizAnswer[]): number {
 }
 
 function saveLocalResult(result: LocalQuizResult) {
-  const raw = window.localStorage.getItem(LOCAL_RESULTS_KEY);
-  const previous = raw ? (JSON.parse(raw) as LocalQuizResult[]) : [];
+  let previous: LocalQuizResult[] = [];
+  try {
+    const raw = window.localStorage.getItem(LOCAL_RESULTS_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    previous = Array.isArray(parsed) ? (parsed as LocalQuizResult[]) : [];
+  } catch {
+    previous = [];
+  }
   const next = [result, ...previous].slice(0, 50);
   window.localStorage.setItem(LOCAL_RESULTS_KEY, JSON.stringify(next));
 }
@@ -115,14 +117,6 @@ function saveLocalResult(result: LocalQuizResult) {
 function buildCaseUrl(category: CategorySlug): string {
   const url = new URL(CASE_SIMULATOR_URL);
   url.searchParams.set("category", category);
-  return url.toString();
-}
-
-function buildReportUrl(category: CategorySlug, score: number): string {
-  const url = new URL(REPORT_BUILDER_URL);
-  url.searchParams.set("activity", "quiz");
-  url.searchParams.set("category", category);
-  url.searchParams.set("score", String(score));
   return url.toString();
 }
 
@@ -588,15 +582,6 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
             >
               Practicar caso relacionado
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
-            </a>
-            <a
-              href={buildReportUrl(category.slug, score)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-            >
-              Generar evidencia de actividad
-              <FileText className="h-4 w-4" aria-hidden="true" />
             </a>
           </div>
         </section>
