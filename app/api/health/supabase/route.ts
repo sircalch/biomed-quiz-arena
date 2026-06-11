@@ -1,3 +1,35 @@
+function cleanEnvValue(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+
+  const withoutBearer = trimmed.replace(/^Bearer\s+/i, "").trim();
+  const first = withoutBearer.at(0);
+  const last = withoutBearer.at(-1);
+
+  if (
+    withoutBearer.length >= 2 &&
+    ((first === '"' && last === '"') ||
+      (first === "'" && last === "'") ||
+      (first === "`" && last === "`"))
+  ) {
+    return withoutBearer.slice(1, -1).trim();
+  }
+
+  return withoutBearer;
+}
+
+function getKeyFormat(token: string | undefined): "jwt" | "supabase_secret" | "other" | null {
+  if (!token) {
+    return null;
+  }
+  if (token.startsWith("sb_secret_")) {
+    return "supabase_secret";
+  }
+  return token.split(".").length === 3 ? "jwt" : "other";
+}
+
 function getJwtRole(token: string | undefined): string | null {
   if (!token || token.split(".").length !== 3) {
     return null;
@@ -34,9 +66,11 @@ function sanitizeStatus(status: number | null) {
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const supabaseUrl = process.env.SUPABASE_URL?.trim();
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  const table = process.env.SUPABASE_QUIZ_SESSIONS_TABLE?.trim() || "quiz_sessions";
+  const rawServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  const supabaseUrl = cleanEnvValue(process.env.SUPABASE_URL);
+  const serviceRoleKey = cleanEnvValue(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const table = cleanEnvValue(process.env.SUPABASE_QUIZ_SESSIONS_TABLE) || "quiz_sessions";
+  const keyFormat = getKeyFormat(serviceRoleKey);
 
   let status: number | null = null;
 
@@ -49,7 +83,9 @@ export async function GET() {
       const response = await fetch(endpoint.toString(), {
         headers: {
           apikey: serviceRoleKey,
-          Authorization: `Bearer ${serviceRoleKey}`,
+          ...(keyFormat === "jwt"
+            ? { Authorization: `Bearer ${serviceRoleKey}` }
+            : {}),
         },
         cache: "no-store",
       });
@@ -65,9 +101,11 @@ export async function GET() {
     env: {
       hasSupabaseUrl: Boolean(supabaseUrl),
       hasServiceRoleKey: Boolean(serviceRoleKey),
-      serviceRoleKeyLooksLikeJwt: serviceRoleKey
-        ? serviceRoleKey.split(".").length === 3
-        : false,
+      serviceRoleKeyNormalized: Boolean(
+        rawServiceRoleKey && serviceRoleKey && rawServiceRoleKey !== serviceRoleKey,
+      ),
+      serviceRoleKeyFormat: keyFormat,
+      serviceRoleKeyLooksLikeJwt: keyFormat === "jwt",
       serviceRoleKeyRole: getJwtRole(serviceRoleKey),
       table,
     },
