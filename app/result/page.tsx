@@ -142,7 +142,9 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
   const reportUrl = buildExternalUrl(REPORT_BUILDER_URL, {
     activity: "quiz",
     category: category || "equipos-medicos",
+    categoryName,
     score: String(score),
+    total: String(total),
   });
   const repeatUrl = `/quiz/${category || "equipos-medicos"}?mode=${safeMode}&difficulty=${safeDifficulty}`;
   const strengths =
