@@ -63,6 +63,22 @@ function sanitizeStatus(status: number | null) {
   return "request_failed";
 }
 
+async function checkSupabase(
+  endpoint: URL,
+  serviceRoleKey: string,
+  headers: Record<string, string>,
+) {
+  try {
+    const response = await fetch(endpoint.toString(), {
+      headers,
+      cache: "no-store",
+    });
+    return response.status;
+  } catch {
+    return 0;
+  }
+}
+
 export const dynamic = "force-dynamic";
 
 export async function GET() {
@@ -73,26 +89,34 @@ export async function GET() {
   const keyFormat = getKeyFormat(serviceRoleKey);
 
   let status: number | null = null;
+  const variants: Record<string, number | null> = {
+    apikeyOnly: null,
+    bearerSameKey: null,
+    authorizationSameKey: null,
+  };
 
   if (supabaseUrl && serviceRoleKey) {
-    try {
-      const endpoint = new URL(`/rest/v1/${table}`, supabaseUrl);
-      endpoint.searchParams.set("select", "*");
-      endpoint.searchParams.set("limit", "1");
+    const endpoint = new URL(`/rest/v1/${table}`, supabaseUrl);
+    endpoint.searchParams.set("select", "*");
+    endpoint.searchParams.set("limit", "1");
 
-      const response = await fetch(endpoint.toString(), {
-        headers: {
-          apikey: serviceRoleKey,
-          ...(keyFormat === "jwt"
-            ? { Authorization: `Bearer ${serviceRoleKey}` }
-            : {}),
-        },
-        cache: "no-store",
-      });
-      status = response.status;
-    } catch {
-      status = 0;
-    }
+    variants.apikeyOnly = await checkSupabase(endpoint, serviceRoleKey, {
+      apikey: serviceRoleKey,
+    });
+    variants.bearerSameKey = await checkSupabase(endpoint, serviceRoleKey, {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+    });
+    variants.authorizationSameKey = await checkSupabase(endpoint, serviceRoleKey, {
+      apikey: serviceRoleKey,
+      Authorization: serviceRoleKey,
+    });
+    status =
+      variants.apikeyOnly === 200 || variants.apikeyOnly === 206
+        ? variants.apikeyOnly
+        : variants.bearerSameKey === 200 || variants.bearerSameKey === 206
+          ? variants.bearerSameKey
+          : variants.authorizationSameKey;
   }
 
   return Response.json({
@@ -113,6 +137,15 @@ export async function GET() {
       checked: Boolean(supabaseUrl && serviceRoleKey),
       status,
       result: sanitizeStatus(status),
+      variants: Object.fromEntries(
+        Object.entries(variants).map(([name, variantStatus]) => [
+          name,
+          {
+            status: variantStatus,
+            result: sanitizeStatus(variantStatus),
+          },
+        ]),
+      ),
     },
   });
 }
