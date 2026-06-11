@@ -94,7 +94,7 @@ NEXT_PUBLIC_REPORT_BUILDER_URL=https://clinical-report-builder.vercel.app
 Si defines estas variables, sesiones y ranking usan Supabase. Sin variables, se usa memoria del proceso (ephemeral).
 
 - `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (`sb_secret_...` recomendado para backend; tambien acepta `service_role` JWT legacy)
 - `SUPABASE_QUIZ_SESSIONS_TABLE` (opcional, default: `quiz_sessions`)
 
 Schema sugerido: `supabase/schema.sql`
