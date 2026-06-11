@@ -67,7 +67,10 @@ export function QuizDashboardClient({ categories }: QuizDashboardClientProps) {
   const [results, setResults] = useState<LocalQuizResult[]>([]);
 
   useEffect(() => {
-    setResults(readResults());
+    const timer = window.setTimeout(() => {
+      setResults(readResults());
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const stats = useMemo(() => {

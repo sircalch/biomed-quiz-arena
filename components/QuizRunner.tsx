@@ -75,6 +75,11 @@ const DIFFICULTY_LABEL: Record<QuizDifficulty | "all", string> = {
   advanced: "Avanzada",
 };
 
+const QUESTION_SOURCE_LABEL: Record<QuestionSource, string> = {
+  seed: "Banco academico local",
+  remote: "Banco academico actualizado",
+};
+
 function initialFeedback(mode: QuizMode): string {
   if (mode === "exam") {
     return "Selecciona una respuesta. La explicacion se mostrara al finalizar.";
@@ -222,10 +227,13 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
   }, [currentIndex, totalQuestions]);
 
   useEffect(() => {
-    const savedAlias = window.localStorage.getItem("biomed_quiz_participant_alias");
-    if (savedAlias) {
-      setParticipantAlias(savedAlias);
-    }
+    const timer = window.setTimeout(() => {
+      const savedAlias = window.localStorage.getItem("biomed_quiz_participant_alias");
+      if (savedAlias) {
+        setParticipantAlias(savedAlias);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -286,7 +294,6 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
       return;
     }
 
-    setTimeLeft(questionDuration);
     const timer = window.setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -300,6 +307,11 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
 
     return () => window.clearInterval(timer);
   }, [commitAnswer, isChallenge, locked, question, questionDuration, currentIndex]);
+
+  const handleQuestionDurationChange = (value: number) => {
+    setQuestionDuration(value);
+    setTimeLeft(value);
+  };
 
   const goNext = async () => {
     if (!canContinue || !question) {
@@ -383,6 +395,7 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
     setCurrentIndex((prev) => prev + 1);
     setSelectedIndex(null);
     setLocked(false);
+    setTimeLeft(questionDuration);
     setFeedbackTone("info");
     setFeedbackMessage(initialFeedback(mode));
   };
@@ -443,16 +456,18 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
               Dificultad {DIFFICULTY_LABEL[difficulty]}
             </span>
             <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-              Dataset {questionSource}
+              {QUESTION_SOURCE_LABEL[questionSource]}
             </span>
           </div>
           <p className="mt-2 text-sm text-slate-600">{MODE_HELP[mode]}</p>
           {questionLoadStatus === "loading" ? (
-            <p className="mt-1 text-xs text-slate-600">Sincronizando preguntas...</p>
+            <p className="mt-1 text-xs text-slate-600">
+              Preparando banco de preguntas...
+            </p>
           ) : null}
           {questionLoadStatus === "error" ? (
             <p className="mt-1 text-xs text-amber-700">
-              No se pudo cargar banco remoto. Se usa fallback local.
+              No se pudo actualizar el banco. Se mantiene el banco academico local.
             </p>
           ) : null}
         </section>
@@ -526,7 +541,9 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <select
                   value={questionDuration}
-                  onChange={(event) => setQuestionDuration(Number(event.target.value))}
+                  onChange={(event) =>
+                    handleQuestionDurationChange(Number(event.target.value))
+                  }
                   disabled={locked}
                   className="min-h-8 rounded-md border border-blue-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -555,11 +572,11 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
             >
               {sessionSyncStatus === "saved"
                 ? sessionStorage === "memory"
-                  ? "Sesion registrada en memoria temporal."
-                  : "Sesion registrada en Supabase."
+                  ? "Resultado guardado para esta sesion."
+                  : "Resultado registrado para seguimiento docente."
                 : sessionSyncStatus === "saving"
-                  ? "Guardando sesion..."
-                  : "No se pudo guardar la sesion."}
+                  ? "Guardando resultado..."
+                  : "El resultado esta disponible; no se pudo sincronizar."}
             </p>
           ) : null}
         </section>
@@ -592,7 +609,10 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
             Banco de preguntas
           </h2>
           <p className="mt-2 text-sm text-slate-700">
-            Fuente activa: <span className="font-medium text-slate-900">{questionSource}</span>
+            Fuente activa:{" "}
+            <span className="font-medium text-slate-900">
+              {QUESTION_SOURCE_LABEL[questionSource]}
+            </span>
           </p>
           <button
             type="button"

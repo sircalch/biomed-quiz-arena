@@ -28,7 +28,6 @@ function formatScore(score: number, total: number) {
 export function QuizInsightsPanel() {
   const [stats, setStats] = useState<QuizStats | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
-  const [source, setSource] = useState<"memory" | "supabase" | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("loading");
 
   const loadInsights = async () => {
@@ -45,7 +44,6 @@ export function QuizInsightsPanel() {
       }
 
       const statsPayload = (await statsResponse.json()) as {
-        source?: "memory" | "supabase";
         stats?: QuizStats;
       };
       const leaderboardPayload = (await leaderboardResponse.json()) as {
@@ -58,13 +56,11 @@ export function QuizInsightsPanel() {
 
       setStats(statsPayload.stats);
       setLeaderboard(leaderboardPayload.leaderboard);
-      setSource(statsPayload.source ?? "memory");
       setStatus("idle");
     } catch {
       setStatus("error");
       setStats(null);
       setLeaderboard([]);
-      setSource(null);
     }
   };
 
@@ -167,14 +163,9 @@ export function QuizInsightsPanel() {
         )}
       </div>
 
-      <p className="mt-3 text-xs uppercase tracking-wide text-slate-500">
-        Fuente de datos: {source ?? "N/D"}
+      <p className="mt-3 text-xs text-slate-500">
+        Las estadisticas se actualizan con los intentos disponibles del entorno.
       </p>
-      {source === "memory" ? (
-        <p className="mt-1 text-xs text-slate-600">
-          Modo memoria: en Vercel no garantiza persistencia entre invocaciones.
-        </p>
-      ) : null}
     </section>
   );
 }

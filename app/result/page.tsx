@@ -147,6 +147,8 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
     total: String(total),
   });
   const repeatUrl = `/quiz/${category || "equipos-medicos"}?mode=${safeMode}&difficulty=${safeDifficulty}`;
+  const showStorageNotice =
+    sessionStorage === "supabase" || sessionStorage === "memory";
   const strengths =
     percent >= 75
       ? [categoryName, `Racha maxima: ${bestStreak}`, `${correctCount} respuestas correctas`]
@@ -177,17 +179,17 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
 
         <div className="space-y-4">
           <ShareResultCard shareText={shareSummary} />
-          {sessionStorage ? (
+          {showStorageNotice ? (
             <section
               className={`rounded-lg border p-4 text-sm ${
                 sessionStorage === "supabase"
                   ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                  : "border-slate-200 bg-slate-50 text-slate-700"
+                  : "border-blue-100 bg-blue-50 text-blue-800"
               }`}
             >
               {sessionStorage === "supabase"
-                ? "Sesion registrada en supabase."
-                : "Sesion registrada en memoria temporal (no persistente en Vercel)."}
+                ? "Resultado registrado para seguimiento docente."
+                : "Resultado guardado para esta sesion."}
             </section>
           ) : null}
           <section className="rounded-lg border border-slate-200 bg-white p-6">
