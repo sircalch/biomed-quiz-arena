@@ -424,7 +424,7 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
   return (
     <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
       <div className="space-y-4">
-        <section className="rounded-md border border-blue-100 bg-white px-4 py-3 shadow-sm">
+        <section className="rounded-lg border border-blue-100 bg-white/95 px-4 py-3 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
               <Gauge className="h-4 w-4" aria-hidden="true" />
@@ -506,7 +506,7 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
       </div>
 
       <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-lg border border-slate-200 bg-white/95 p-4 shadow-sm">
           <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
             <ChartNoAxesColumn className="h-4 w-4" aria-hidden="true" />
             Rendimiento
@@ -581,11 +581,11 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
           ) : null}
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-lg border border-slate-200 bg-white/95 p-4 shadow-sm">
           <ProgressBar current={currentIndex + 1} total={totalQuestions} />
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-lg border border-slate-200 bg-white/95 p-4 shadow-sm">
           <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
             <BookOpenCheck className="h-4 w-4" aria-hidden="true" />
             Flujo academico
@@ -603,7 +603,7 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
           </div>
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-lg border border-slate-200 bg-white/95 p-4 shadow-sm">
           <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
             <CloudDownload className="h-4 w-4" aria-hidden="true" />
             Banco de preguntas

@@ -53,11 +53,11 @@ export default async function QuizCategoryPage({ params, searchParams }: QuizPag
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen">
       <main className="mx-auto w-full max-w-7xl px-4 py-10 md:px-6">
-        <header className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <header className="mb-6 flex flex-wrap items-start justify-between gap-3 rounded-lg border border-slate-200 bg-white/95 p-5 shadow-sm">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+            <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
               Quiz
             </p>
             <h1 className="mt-1 text-3xl font-semibold text-slate-900">
