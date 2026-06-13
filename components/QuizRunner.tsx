@@ -5,17 +5,16 @@ import {
   BookOpenCheck,
   ChartNoAxesColumn,
   CloudDownload,
-  ExternalLink,
   Gauge,
   RefreshCw,
   Timer,
   Trophy,
   User,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { ProgressBar } from "@/components/ProgressBar";
 import { QuestionCard } from "@/components/QuestionCard";
 import { getScoreFromCorrect, getScorePercent } from "@/lib/scoring";
 import {
@@ -56,10 +55,10 @@ const CASE_SIMULATOR_URL =
   process.env.NEXT_PUBLIC_CASE_SIMULATOR_URL ||
   "https://biomed-case-simulator.vercel.app";
 
-const MODE_LABEL: Record<QuizMode, string> = {
-  study: "Modo estudio",
-  challenge: "Modo reto",
-  exam: "Modo examen",
+const MODE_SHORT_LABEL: Record<QuizMode, string> = {
+  study: "Estudio",
+  challenge: "Reto",
+  exam: "Examen",
 };
 
 const MODE_HELP: Record<QuizMode, string> = {
@@ -422,208 +421,280 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-      <div className="space-y-4">
-        <section className="rounded-lg border border-blue-100 bg-white/95 px-4 py-3 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
-              <Gauge className="h-4 w-4" aria-hidden="true" />
-              Sesion activa
-            </h2>
-            <p className="text-sm font-medium text-slate-700">{progressLabel}</p>
-          </div>
-          <label className="mt-2 block text-sm text-slate-700">
-            Alias de participante
-            <span className="relative mt-1 block">
-              <User
-                className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-                aria-hidden="true"
-              />
-              <input
-                value={participantAlias}
-                onChange={(event) => setParticipantAlias(event.target.value)}
-                maxLength={32}
-                placeholder="Nombre o alias"
-                className="w-full rounded-md border border-slate-300 bg-white py-2 pl-8 pr-3 text-sm text-slate-900"
-              />
-            </span>
-          </label>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="rounded-md border border-blue-100 bg-blue-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
-              {MODE_LABEL[mode]}
-            </span>
-            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-              Dificultad {DIFFICULTY_LABEL[difficulty]}
-            </span>
-            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-              {QUESTION_SOURCE_LABEL[questionSource]}
-            </span>
-          </div>
-          <p className="mt-2 text-sm text-slate-600">{MODE_HELP[mode]}</p>
-          {questionLoadStatus === "loading" ? (
-            <p className="mt-1 text-xs text-slate-600">
-              Preparando banco de preguntas...
+    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.12)]">
+      <div className="grid lg:grid-cols-[15.5rem_1fr]">
+        <aside className="bg-blue-950 p-5 text-white">
+          <h2 className="text-sm font-semibold">BioMed Quiz Arena</h2>
+          <nav className="mt-8 space-y-1 text-sm">
+            {[
+              ["Dashboard", Gauge],
+              ["Mis resultados", Trophy],
+              ["Categorias", BookOpenCheck],
+            ].map(([label, Icon]) => (
+              <a
+                key={String(label)}
+                href={label === "Categorias" ? "/categories" : "/result"}
+                className="flex min-h-9 items-center gap-2 rounded-md px-3 text-blue-100 hover:bg-white/10 hover:text-white"
+              >
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                {String(label)}
+              </a>
+            ))}
+          </nav>
+
+          <div className="mt-7 border-t border-white/10 pt-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-blue-200">
+              Modos
             </p>
-          ) : null}
-          {questionLoadStatus === "error" ? (
-            <p className="mt-1 text-xs text-amber-700">
-              No se pudo actualizar el banco. Se mantiene el banco academico local.
-            </p>
-          ) : null}
-        </section>
-
-        <QuestionCard
-          question={question}
-          questionNumber={currentIndex + 1}
-          totalQuestions={totalQuestions}
-          selectedIndex={selectedIndex}
-          locked={locked}
-          revealAnswer={mode !== "exam" && locked}
-          onSelect={commitAnswer}
-        />
-
-        <section
-          className={`rounded-md border px-4 py-3 text-sm ${
-            feedbackTone === "success"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-              : feedbackTone === "warning"
-                ? "border-amber-200 bg-amber-50 text-amber-800"
-                : "border-blue-100 bg-blue-50 text-blue-800"
-          }`}
-        >
-          {feedbackMessage}
-        </section>
-
-        <button
-          type="button"
-          onClick={() => void goNext()}
-          disabled={!canContinue || sessionSyncStatus === "saving"}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white transition enabled:hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          {currentIndex === totalQuestions - 1 ? "Finalizar quiz" : "Siguiente"}
-        </button>
-      </div>
-
-      <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-        <section className="rounded-lg border border-slate-200 bg-white/95 p-4 shadow-sm">
-          <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
-            <ChartNoAxesColumn className="h-4 w-4" aria-hidden="true" />
-            Rendimiento
-          </h2>
-          <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
-            <div className="rounded-md border border-slate-200 bg-slate-50 p-2">
-              <dt className="text-xs uppercase tracking-wide text-slate-500">Puntaje</dt>
-              <dd className="mt-1 font-semibold text-slate-900">
-                {score}/{totalQuestions * 10}
-              </dd>
-            </div>
-            <div className="rounded-md border border-slate-200 bg-slate-50 p-2">
-              <dt className="text-xs uppercase tracking-wide text-slate-500">Avance</dt>
-              <dd className="mt-1 font-semibold text-slate-900">{percent}%</dd>
-            </div>
-            <div className="rounded-md border border-slate-200 bg-slate-50 p-2">
-              <dt className="text-xs uppercase tracking-wide text-slate-500">Racha</dt>
-              <dd className="mt-1 font-semibold text-slate-900">{currentStreak}</dd>
-            </div>
-            <div className="rounded-md border border-slate-200 bg-slate-50 p-2">
-              <dt className="text-xs uppercase tracking-wide text-slate-500">Mejor</dt>
-              <dd className="mt-1 font-semibold text-slate-900">{bestStreak}</dd>
-            </div>
-          </dl>
-
-          {isChallenge ? (
-            <div className="mt-3 rounded-md border border-blue-100 bg-blue-50 px-3 py-2">
-              <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-700">
-                <Timer className="h-4 w-4" aria-hidden="true" />
-                Temporizador
-              </p>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <select
-                  value={questionDuration}
-                  onChange={(event) =>
-                    handleQuestionDurationChange(Number(event.target.value))
-                  }
-                  disabled={locked}
-                  className="min-h-8 rounded-md border border-blue-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+            <div className="mt-3 space-y-1 text-sm">
+              {(["study", "challenge", "exam"] as QuizMode[]).map((item) => (
+                <span
+                  key={item}
+                  className={`flex min-h-9 items-center gap-2 rounded-md px-3 ${
+                    item === mode
+                      ? "bg-blue-700 text-white"
+                      : "text-blue-100"
+                  }`}
                 >
-                  <option value={20}>20s</option>
-                  <option value={35}>35s</option>
-                  <option value={50}>50s</option>
-                </select>
-                <p className="text-xs font-semibold text-blue-800">Restante: {timeLeft}s</p>
+                  <BookOpenCheck className="h-4 w-4" aria-hidden="true" />
+                  {MODE_SHORT_LABEL[item]}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-7 border-t border-white/10 pt-5 text-sm">
+            <Link
+              href="/"
+              className="flex min-h-9 items-center gap-2 rounded-md px-3 text-blue-100 hover:bg-white/10 hover:text-white"
+            >
+              <ArrowRight className="h-4 w-4 rotate-180" aria-hidden="true" />
+              Dashboard
+            </Link>
+          </div>
+        </aside>
+
+        <div className="min-w-0 bg-white">
+          <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 md:px-5">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+              <a href="/categories" className="font-medium text-slate-500 hover:text-blue-700">
+                Categoria:
+              </a>
+              <span className="font-semibold text-slate-900">{category.name}</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="rounded-md border border-teal-200 bg-teal-50 px-3 py-1.5 font-semibold text-teal-800">
+                Modo: {MODE_SHORT_LABEL[mode]}
+              </span>
+              <span className="rounded-md border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700">
+                Dificultad: {DIFFICULTY_LABEL[difficulty]}
+              </span>
+              <label className="relative">
+                <User
+                  className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                  aria-hidden="true"
+                />
+                <input
+                  value={participantAlias}
+                  onChange={(event) => setParticipantAlias(event.target.value)}
+                  maxLength={32}
+                  aria-label="Alias de participante"
+                  className="h-9 w-28 rounded-full border border-slate-200 bg-slate-50 pl-8 pr-3 text-xs font-semibold text-slate-800"
+                />
+              </label>
+            </div>
+            <p className="basis-full text-xs text-slate-500 md:basis-auto">
+              {MODE_HELP[mode]}
+            </p>
+          </header>
+
+          <div className="grid min-h-[32rem] lg:grid-cols-[1fr_20rem]">
+            <div className="space-y-4 p-4 md:p-6">
+              <div>
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
+                  <span>Pregunta {currentIndex + 1} de {totalQuestions}</span>
+                  <span>{Math.round(((currentIndex + 1) / totalQuestions) * 100)}%</span>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
+                  <div
+                    className="h-full rounded-full bg-blue-700 transition-all"
+                    style={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              <QuestionCard
+                question={question}
+                questionNumber={currentIndex + 1}
+                totalQuestions={totalQuestions}
+                selectedIndex={selectedIndex}
+                locked={locked}
+                revealAnswer={mode !== "exam" && locked}
+                onSelect={commitAnswer}
+              />
+
+              <section
+                className={`inline-flex rounded-md border px-4 py-3 text-sm font-medium ${
+                  feedbackTone === "success"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                    : feedbackTone === "warning"
+                      ? "border-amber-200 bg-amber-50 text-amber-800"
+                      : "border-blue-100 bg-blue-50 text-blue-800"
+                }`}
+              >
+                {feedbackTone === "success" ? "Respuesta correcta" : feedbackTone === "warning" ? "Respuesta a revisar" : "Retroalimentacion lista"}
+              </section>
+
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <label className="inline-flex items-center gap-2 text-sm text-slate-600">
+                  <input type="checkbox" className="h-4 w-4 rounded border-slate-300" />
+                  Marcar para revisar
+                </label>
+                <button
+                  type="button"
+                  onClick={() => void goNext()}
+                  disabled={!canContinue || sessionSyncStatus === "saving"}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-5 py-2 text-sm font-medium text-white transition enabled:hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {currentIndex === totalQuestions - 1 ? "Finalizar quiz" : "Siguiente"}
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </button>
               </div>
             </div>
-          ) : null}
 
-          <p className="mt-3 inline-flex items-center gap-2 border-t border-slate-200 pt-3 text-xs text-slate-600">
-            <Trophy className="h-4 w-4" aria-hidden="true" />
-            Cada pregunta se bloquea despues de responder.
-          </p>
-          {sessionSyncStatus !== "idle" ? (
-            <p
-              className={`mt-2 rounded-md border px-2.5 py-1.5 text-xs ${
-                sessionSyncStatus === "saved"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                  : sessionSyncStatus === "saving"
-                    ? "border-slate-200 bg-slate-50 text-slate-700"
-                    : "border-amber-200 bg-amber-50 text-amber-800"
-              }`}
-            >
-              {sessionSyncStatus === "saved"
-                ? sessionStorage === "memory"
-                  ? "Resultado guardado para esta sesion."
-                  : "Resultado registrado para seguimiento docente."
-                : sessionSyncStatus === "saving"
-                  ? "Guardando resultado..."
-                  : "El resultado esta disponible; no se pudo sincronizar."}
-            </p>
-          ) : null}
-        </section>
+            <aside className="space-y-4 border-t border-slate-200 bg-slate-50 p-4 lg:border-l lg:border-t-0">
+              <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <h2 className="text-sm font-semibold text-slate-950">
+                  Explicacion tecnica
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  {feedbackMessage}
+                </p>
+              </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white/95 p-4 shadow-sm">
-          <ProgressBar current={currentIndex + 1} total={totalQuestions} />
-        </section>
+              <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <h2 className="text-sm font-semibold text-slate-950">
+                  Conceptos clave
+                </h2>
+                <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                  <li>Categoria: {category.name}</li>
+                  <li>Dificultad: {DIFFICULTY_LABEL[difficulty]}</li>
+                  <li>{question.relatedEquipment ?? "Equipo medico general"}</li>
+                </ul>
+              </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white/95 p-4 shadow-sm">
-          <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
-            <BookOpenCheck className="h-4 w-4" aria-hidden="true" />
-            Flujo academico
-          </h2>
-          <div className="mt-3 grid gap-2">
-            <a
-              href={buildCaseUrl(category.slug)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-800 transition hover:bg-blue-100"
-            >
-              Practicar caso relacionado
-              <ExternalLink className="h-4 w-4" aria-hidden="true" />
-            </a>
+              <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <h2 className="text-sm font-semibold text-slate-950">
+                  Caso relacionado
+                </h2>
+                <a
+                  href={buildCaseUrl(category.slug)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex min-h-9 items-center justify-center gap-2 rounded-md text-sm font-semibold text-blue-700 hover:text-blue-900"
+                >
+                  Practicar caso
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </a>
+              </section>
+
+              <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <h2 className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950">
+                  <CloudDownload className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                  Banco activo
+                </h2>
+                <p className="mt-2 text-sm text-slate-600">
+                  {QUESTION_SOURCE_LABEL[questionSource]}
+                </p>
+                {questionLoadStatus === "loading" ? (
+                  <p className="mt-1 text-xs text-slate-500">Preparando preguntas...</p>
+                ) : null}
+                {questionLoadStatus === "error" ? (
+                  <p className="mt-1 text-xs text-amber-700">
+                    Se mantiene el banco local.
+                  </p>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => void loadRemoteQuestions()}
+                  className="mt-3 inline-flex min-h-9 items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                >
+                  <RefreshCw className="h-4 w-4" aria-hidden="true" />
+                  Recargar
+                </button>
+                {sessionSyncStatus !== "idle" ? (
+                  <p
+                    className={`mt-3 rounded-md border px-2.5 py-1.5 text-xs ${
+                      sessionSyncStatus === "saved"
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                        : sessionSyncStatus === "saving"
+                          ? "border-slate-200 bg-slate-50 text-slate-700"
+                          : "border-amber-200 bg-amber-50 text-amber-800"
+                    }`}
+                  >
+                    {sessionSyncStatus === "saved"
+                      ? sessionStorage === "memory"
+                        ? "Resultado guardado para esta sesion."
+                        : "Resultado registrado para seguimiento docente."
+                      : sessionSyncStatus === "saving"
+                        ? "Guardando resultado..."
+                        : "El resultado esta disponible; no se pudo sincronizar."}
+                  </p>
+                ) : null}
+              </section>
+
+              {isChallenge ? (
+                <section className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                  <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-700">
+                    <Timer className="h-4 w-4" aria-hidden="true" />
+                    Temporizador
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <select
+                      value={questionDuration}
+                      onChange={(event) =>
+                        handleQuestionDurationChange(Number(event.target.value))
+                      }
+                      disabled={locked}
+                      className="min-h-8 rounded-md border border-blue-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value={20}>20s</option>
+                      <option value={35}>35s</option>
+                      <option value={50}>50s</option>
+                    </select>
+                    <p className="text-xs font-semibold text-blue-800">
+                      Restante: {timeLeft}s
+                    </p>
+                  </div>
+                </section>
+              ) : null}
+            </aside>
           </div>
-        </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white/95 p-4 shadow-sm">
-          <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
-            <CloudDownload className="h-4 w-4" aria-hidden="true" />
-            Banco de preguntas
-          </h2>
-          <p className="mt-2 text-sm text-slate-700">
-            Fuente activa:{" "}
-            <span className="font-medium text-slate-900">
-              {QUESTION_SOURCE_LABEL[questionSource]}
-            </span>
-          </p>
-          <button
-            type="button"
-            onClick={() => void loadRemoteQuestions()}
-            className="mt-3 inline-flex min-h-9 items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
-          >
-            <RefreshCw className="h-4 w-4" aria-hidden="true" />
-            Recargar preguntas
-          </button>
-        </section>
-      </aside>
-    </div>
+          <footer className="grid gap-2 border-t border-slate-200 bg-white p-3 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              ["Puntaje actual", `${percent}%`, ChartNoAxesColumn],
+              ["Racha actual", String(currentStreak), Timer],
+              ["Mejor racha", String(bestStreak), Trophy],
+              ["Intentos", progressLabel, Gauge],
+            ].map(([label, value, Icon]) => (
+              <article key={String(label)} className="flex min-h-14 items-center gap-3 rounded-md border border-slate-200 bg-white px-3">
+                <Icon className="h-5 w-5 text-blue-700" aria-hidden="true" />
+                <div>
+                  <p className="text-xs text-slate-500">{String(label)}</p>
+                  <p className="text-base font-semibold text-slate-950">{String(value)}</p>
+                </div>
+              </article>
+            ))}
+            <a
+              href="/result"
+              className="inline-flex min-h-14 items-center justify-center rounded-md border border-blue-200 bg-blue-50 px-3 text-sm font-semibold text-blue-800 hover:bg-blue-100"
+            >
+              Ver estadisticas
+            </a>
+          </footer>
+        </div>
+      </div>
+    </section>
   );
 }

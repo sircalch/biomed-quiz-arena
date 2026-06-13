@@ -18,14 +18,14 @@ export function AnswerButton({
   reveal,
 }: AnswerButtonProps) {
   let style =
-    "border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50";
+    "border-slate-200 bg-white text-slate-800 hover:border-blue-200 hover:bg-blue-50";
 
   if (reveal && isCorrect) {
     style = "border-emerald-300 bg-emerald-50 text-emerald-800";
   } else if (reveal && isSelected && !isCorrect) {
     style = "border-rose-300 bg-rose-50 text-rose-800";
   } else if (!reveal && isSelected) {
-    style = "border-slate-900 bg-slate-900 text-white";
+    style = "border-blue-600 bg-blue-50 text-blue-900 ring-1 ring-blue-600";
   }
 
   return (
@@ -43,7 +43,7 @@ export function AnswerButton({
               : reveal && isSelected && !isCorrect
                 ? "bg-rose-100 text-rose-700"
                 : isSelected
-                  ? "bg-white/20 text-white"
+                  ? "bg-blue-700 text-white"
                   : "bg-slate-100 text-slate-700"
           }`}
         >
