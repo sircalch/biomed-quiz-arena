@@ -423,7 +423,7 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.12)]">
       <div className="grid lg:grid-cols-[15.5rem_1fr]">
-        <aside className="bg-blue-950 p-5 text-white">
+        <aside className="hidden bg-blue-950 p-5 text-white lg:block">
           <h2 className="text-sm font-semibold">BioMed Quiz Arena</h2>
           <nav className="mt-8 space-y-1 text-sm">
             {[
