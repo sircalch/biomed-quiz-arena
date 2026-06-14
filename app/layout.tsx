@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BarChart3, ListChecks, Trophy } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -71,16 +72,25 @@ export default function RootLayout({
         <div className="flex-1">{children}</div>
         <footer className="border-t border-slate-200/80 bg-white/90">
           <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 md:px-6">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Creado por
-              </p>
-              <p className="text-sm font-semibold text-slate-900">
-                Ing. Andres Monreal
-              </p>
-              <p className="text-xs text-slate-600">
-                Ingeniero Biomedico / Topic Tales Biomedica
-              </p>
+            <div className="flex items-center gap-4">
+              <Image
+                src="/topic-tales-biomedica-logo.png"
+                alt="Topic Tales Biomedica"
+                width={126}
+                height={89}
+                className="h-12 w-auto object-contain"
+              />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Creado por
+                </p>
+                <p className="text-sm font-semibold text-slate-900">
+                  Ing. Andres Monreal
+                </p>
+                <p className="text-xs text-slate-600">
+                  Ingeniero Biomedico / Topic Tales Biomedica
+                </p>
+              </div>
             </div>
             {DONATION_URL ? (
               <div className="rounded-md border border-blue-200 bg-blue-50 px-3 py-2">
