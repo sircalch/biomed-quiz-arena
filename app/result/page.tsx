@@ -37,6 +37,35 @@ const REPORT_BUILDER_URL =
   process.env.NEXT_PUBLIC_REPORT_BUILDER_URL ||
   "https://clinical-report-builder.vercel.app";
 
+type RelatedCase = {
+  caseId: string;
+  caseTitle: string;
+  equipment: string;
+};
+
+const RELATED_CASES: Partial<Record<CategorySlug, RelatedCase>> = {
+  "equipos-medicos": {
+    caseId: "monitor-sin-spo2",
+    caseTitle: "Monitor sin lectura de SpO2",
+    equipment: "Monitor multiparametrico",
+  },
+  "monitoreo-signos-vitales": {
+    caseId: "monitor-sin-spo2",
+    caseTitle: "Monitor sin lectura de SpO2",
+    equipment: "Monitor multiparametrico",
+  },
+  "bombas-infusion-terapia": {
+    caseId: "bomba-oclusion",
+    caseTitle: "Bomba de infusion con alarma de oclusion",
+    equipment: "Bomba de infusion",
+  },
+  "desfibrilador-urgencias": {
+    caseId: "desfibrilador-no-carga",
+    caseTitle: "Desfibrilador que no carga",
+    equipment: "Desfibrilador",
+  },
+};
+
 const MODE_LABEL: Record<QuizMode, string> = {
   study: "Modo estudio",
   challenge: "Modo reto",
@@ -50,8 +79,15 @@ const DIFFICULTY_LABEL: Record<QuizDifficulty | "all", string> = {
   advanced: "Avanzada",
 };
 
-function buildExternalUrl(base: string, params: Record<string, string>): string {
+function buildExternalUrl(
+  base: string,
+  params: Record<string, string>,
+  pathname?: string,
+): string {
   const url = new URL(base);
+  if (pathname) {
+    url.pathname = pathname;
+  }
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, value);
   }
@@ -136,17 +172,32 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
   });
   const safeMode = mode in MODE_LABEL ? mode : "study";
   const safeDifficulty = difficulty in DIFFICULTY_LABEL ? difficulty : "all";
-  const caseUrl = buildExternalUrl(CASE_SIMULATOR_URL, {
-    category: category || "equipos-medicos",
-  });
+  const effectiveCategory = (category || "equipos-medicos") as CategorySlug;
+  const relatedCase = RELATED_CASES[effectiveCategory];
+  const caseUrl = relatedCase
+    ? buildExternalUrl(
+        CASE_SIMULATOR_URL,
+        { category: effectiveCategory },
+        `/cases/${relatedCase.caseId}`,
+      )
+    : buildExternalUrl(CASE_SIMULATOR_URL, {
+        category: effectiveCategory,
+      });
   const reportUrl = buildExternalUrl(REPORT_BUILDER_URL, {
     activity: "quiz",
-    category: category || "equipos-medicos",
+    category: effectiveCategory,
     categoryName,
     score: String(score),
     total: String(total),
-  });
-  const repeatUrl = `/quiz/${category || "equipos-medicos"}?mode=${safeMode}&difficulty=${safeDifficulty}`;
+    ...(relatedCase
+      ? {
+          caseId: relatedCase.caseId,
+          caseTitle: relatedCase.caseTitle,
+          equipment: relatedCase.equipment,
+        }
+      : {}),
+  }, "/builder/corrective");
+  const repeatUrl = `/quiz/${effectiveCategory}?mode=${safeMode}&difficulty=${safeDifficulty}`;
   const showStorageNotice =
     sessionStorage === "supabase" || sessionStorage === "memory";
   const strengths =
@@ -221,7 +272,7 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
                 className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-800 transition hover:bg-blue-100"
               >
                 <FileText className="h-4 w-4" aria-hidden="true" />
-                Ir a Report Builder
+                Generar evidencia en Report Builder
               </a>
               <Link
                 href="/categories"
