@@ -424,8 +424,19 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.12)]">
       <div className="grid lg:grid-cols-[15.5rem_1fr]">
         <aside className="hidden bg-blue-950 p-5 text-white lg:block">
-          <h2 className="text-sm font-semibold">BioMed Quiz Arena</h2>
-          <nav className="mt-8 space-y-1 text-sm">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-md border border-white/15 bg-white/10 text-cyan-100">
+              <ChartNoAxesColumn className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-blue-200">
+                BioMedTools MX
+              </p>
+              <h2 className="text-sm font-semibold">BioMed Quiz Arena</h2>
+            </div>
+          </div>
+
+          <nav className="mt-7 space-y-1 text-sm">
             {[
               ["Dashboard", Gauge],
               ["Mis resultados", Trophy],
@@ -471,6 +482,16 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
               <ArrowRight className="h-4 w-4 rotate-180" aria-hidden="true" />
               Dashboard
             </Link>
+          </div>
+
+          <div className="mt-7 rounded-md border border-white/10 bg-white/[0.06] p-3 text-xs leading-5 text-blue-100">
+            <p className="font-semibold uppercase tracking-wide text-cyan-100">
+              Topic Tales Biomedica
+            </p>
+            <p className="mt-1">
+              Repaso academico con resultados locales y evidencia para practica
+              guiada.
+            </p>
           </div>
         </aside>
 
