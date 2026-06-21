@@ -45,11 +45,20 @@ export function CategoryCard({ category, questionCount }: CategoryCardProps) {
   const Icon = CATEGORY_ICON[category.slug];
 
   return (
-    <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="inline-flex items-center gap-2 text-lg font-semibold text-slate-900">
-        <Icon className="h-5 w-5 text-blue-700" aria-hidden="true" />
-        {category.name}
-      </h3>
+    <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md">
+      <div className="flex items-start gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-blue-200 bg-blue-50 text-blue-700">
+          <Icon className="h-5 w-5" aria-hidden="true" />
+        </span>
+        <div>
+          <h3 className="text-lg font-semibold leading-tight text-slate-950">
+            {category.name}
+          </h3>
+          <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
+            {category.relatedEquipment}
+          </p>
+        </div>
+      </div>
       <p className="mt-2 text-sm text-slate-600">{category.description}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <p className="rounded border border-slate-300 bg-slate-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
@@ -57,9 +66,6 @@ export function CategoryCard({ category, questionCount }: CategoryCardProps) {
         </p>
         <p className="rounded border border-slate-300 bg-slate-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
           Puntaje maximo: {questionCount * 10}
-        </p>
-        <p className="rounded border border-blue-100 bg-blue-50 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
-          {category.relatedEquipment}
         </p>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
