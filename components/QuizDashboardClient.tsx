@@ -5,7 +5,10 @@ import {
   BarChart3,
   BookOpenCheck,
   ClipboardCheck,
+  Download,
   Gauge,
+  History,
+  RotateCcw,
   Target,
 } from "lucide-react";
 import Link from "next/link";
@@ -58,6 +61,59 @@ function readResults(): LocalQuizResult[] {
   }
 }
 
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "Fecha no disponible";
+  }
+
+  return new Intl.DateTimeFormat("es-MX", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
+function downloadCsv(results: LocalQuizResult[]) {
+  const rows = [
+    [
+      "fecha",
+      "categoria",
+      "modo",
+      "dificultad",
+      "puntaje",
+      "total",
+      "porcentaje",
+      "correctas",
+      "racha_maxima",
+    ],
+    ...results.map((item) => [
+      item.completedAt,
+      item.categoryName,
+      item.mode,
+      item.difficulty,
+      String(item.score),
+      String(item.total),
+      String(item.percent),
+      String(item.correctCount),
+      String(item.bestStreak),
+    ]),
+  ];
+  const csv = rows
+    .map((row) =>
+      row
+        .map((cell) => `"${String(cell).replaceAll('"', '""')}"`)
+        .join(","),
+    )
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const href = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = "biomed-quiz-arena-resultados.csv";
+  link.click();
+  URL.revokeObjectURL(href);
+}
+
 export function QuizDashboardClient({ categories }: QuizDashboardClientProps) {
   const [mode, setMode] = useState<QuizMode>("study");
   const [category, setCategory] = useState<CategorySlug>(
@@ -106,7 +162,31 @@ export function QuizDashboardClient({ categories }: QuizDashboardClientProps) {
     };
   }, [results]);
 
+  const selectedCategoryStats = useMemo(() => {
+    const categoryResults = results.filter((item) => item.category === category);
+    const latest = categoryResults[0];
+    const previous = categoryResults[1];
+    const best = categoryResults.reduce(
+      (currentBest, item) => Math.max(currentBest, item.percent),
+      0,
+    );
+    const trend =
+      latest && previous ? Number((latest.percent - previous.percent).toFixed(1)) : 0;
+
+    return {
+      attempts: categoryResults.length,
+      latestPercent: latest?.percent ?? 0,
+      bestPercent: Number(best.toFixed(1)),
+      trend,
+    };
+  }, [category, results]);
+
   const startUrl = `/quiz/${category}?mode=${mode}&difficulty=${difficulty}`;
+
+  function handleClearResults() {
+    window.localStorage.removeItem(LOCAL_RESULTS_KEY);
+    setResults([]);
+  }
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -219,8 +299,104 @@ export function QuizDashboardClient({ categories }: QuizDashboardClientProps) {
               </p>
             </article>
           </div>
+          <section className="mt-4 rounded-md border border-blue-100 bg-blue-50 p-4">
+            <h3 className="text-sm font-semibold text-blue-950">
+              Seguimiento de categoria
+            </h3>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {[
+                ["Intentos", selectedCategoryStats.attempts],
+                ["Ultimo", `${selectedCategoryStats.latestPercent}%`],
+                ["Mejor", `${selectedCategoryStats.bestPercent}%`],
+                [
+                  "Cambio",
+                  selectedCategoryStats.trend > 0
+                    ? `+${selectedCategoryStats.trend}%`
+                    : `${selectedCategoryStats.trend}%`,
+                ],
+              ].map(([label, value]) => (
+                <article
+                  key={String(label)}
+                  className="rounded-md border border-blue-100 bg-white p-3"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    {String(label)}
+                  </p>
+                  <p className="mt-1 text-lg font-semibold text-slate-950">
+                    {String(value)}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => downloadCsv(results)}
+              disabled={results.length === 0}
+              className="inline-flex min-h-9 items-center gap-2 rounded-md border border-blue-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-800 transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Download className="h-4 w-4" aria-hidden="true" />
+              Exportar CSV
+            </button>
+            <button
+              type="button"
+              onClick={handleClearResults}
+              disabled={results.length === 0}
+              className="inline-flex min-h-9 items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <RotateCcw className="h-4 w-4" aria-hidden="true" />
+              Limpiar
+            </button>
+          </div>
         </div>
       </div>
+
+      <section className="mt-5 rounded-md border border-slate-200 bg-slate-50 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
+            <History className="h-4 w-4" aria-hidden="true" />
+            Historial reciente
+          </h2>
+          <span className="text-xs font-semibold text-slate-500">
+            {results.length} resultados locales
+          </span>
+        </div>
+        <div className="mt-3 grid gap-2">
+          {results.slice(0, 5).map((item) => (
+            <article
+              key={`${item.completedAt}-${item.category}-${item.mode}`}
+              className="grid gap-3 rounded-md border border-slate-200 bg-white p-3 md:grid-cols-[1fr_auto]"
+            >
+              <div>
+                <p className="text-sm font-semibold text-slate-950">
+                  {item.categoryName}
+                </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {formatDate(item.completedAt)} | {item.mode} | {item.difficulty}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="rounded-md border border-blue-100 bg-blue-50 px-2.5 py-1 font-semibold text-blue-800">
+                  {item.percent}%
+                </span>
+                <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 font-semibold text-slate-700">
+                  {item.score}/{item.total}
+                </span>
+                <span className="rounded-md border border-teal-100 bg-teal-50 px-2.5 py-1 font-semibold text-teal-800">
+                  Racha {item.bestStreak}
+                </span>
+              </div>
+            </article>
+          ))}
+
+          {results.length === 0 ? (
+            <div className="rounded-md border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-600">
+              Aun no hay resultados guardados en este navegador.
+            </div>
+          ) : null}
+        </div>
+      </section>
     </section>
   );
 }

@@ -19,6 +19,7 @@ Modulo academico de repaso, pretest/postest, evaluacion rapida y competencia for
 - Modo reto: temporizador, puntaje y racha
 - Modo examen: no revela respuestas hasta el final
 - Resultado final con puntaje, porcentaje, racha maxima, nivel, fortalezas, areas a reforzar y recomendaciones
+- Dashboard con historial reciente, comparativa por categoria y exportacion CSV local
 - Enlace a Case Simulator por categoria
 - Enlace a Report Builder para generar evidencia de actividad
 
@@ -81,6 +82,7 @@ Report Builder prellena un reporte correctivo educativo con esos datos.
 - Dinamica grupal: usar modo reto.
 - Postest: repetir modo examen y comparar resultados.
 - Evidencia: enviar resultado a Report Builder.
+- Exportacion: descargar CSV local para evidencia rapida del piloto.
 
 ### Variables
 
