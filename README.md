@@ -87,8 +87,11 @@ Report Builder prellena un reporte correctivo educativo con esos datos.
 ### Variables
 
 ```env
+NEXT_PUBLIC_SITE_URL=https://biomed-quiz-arena.vercel.app
+NEXT_PUBLIC_CORE_URL=https://biomedtools-mx-core.vercel.app
 NEXT_PUBLIC_CASE_SIMULATOR_URL=https://biomed-case-simulator.vercel.app
 NEXT_PUBLIC_REPORT_BUILDER_URL=https://clinical-report-builder.vercel.app
+NEXT_PUBLIC_DONATION_URL=
 ```
 
 ### Recursos visuales
@@ -107,6 +110,13 @@ Si defines estas variables, sesiones y ranking usan Supabase. Sin variables, se 
 - `SUPABASE_QUIZ_SESSIONS_TABLE` (opcional, default: `quiz_sessions`)
 
 Schema sugerido: `supabase/schema.sql`
+
+### Calidad del repositorio
+
+- CI en GitHub Actions: `npm ci`, `npm run lint`, `npm run build` y `npm audit --audit-level=high`.
+- Variables documentadas en `.env.example`.
+- Politica de seguridad en `SECURITY.md`.
+- Metadata Open Graph/Twitter configurada para enlaces compartidos.
 
 ### Scripts
 

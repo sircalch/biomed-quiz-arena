@@ -15,10 +15,52 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://biomed-quiz-arena.vercel.app";
+const OG_IMAGE = "/biomed-equipment-atlas.png";
+
 export const metadata: Metadata = {
-  title: "BioMed Quiz Arena",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "BioMed Quiz Arena",
+    template: "%s | BioMed Quiz Arena",
+  },
   description:
     "Modulo academico de quizzes para ingenieria biomedica, tecnologia medica y evidencia educativa.",
+  applicationName: "BioMed Quiz Arena",
+  authors: [{ name: "Ing. Andres Monreal" }],
+  creator: "Ing. Andres Monreal / Topic Tales Biomedica",
+  keywords: [
+    "quiz ingenieria biomedica",
+    "pretest postest",
+    "tecnologia medica",
+    "seguridad clinica",
+    "evaluacion academica",
+  ],
+  openGraph: {
+    title: "BioMed Quiz Arena",
+    description:
+      "Quizzes academicos por categoria para repaso, reto, examen y evidencia docente.",
+    url: SITE_URL,
+    siteName: "BioMedTools MX Core",
+    images: [
+      {
+        url: OG_IMAGE,
+        width: 1600,
+        height: 1000,
+        alt: "Modulo de quizzes academicos para ingenieria biomedica",
+      },
+    ],
+    locale: "es_MX",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BioMed Quiz Arena",
+    description:
+      "Repaso, pretest/postest y competencia academica para tecnologia medica.",
+    images: [OG_IMAGE],
+  },
 };
 
 const DONATION_URL = process.env.NEXT_PUBLIC_DONATION_URL ?? "";
