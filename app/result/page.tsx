@@ -1,4 +1,4 @@
-import { ExternalLink, FileText, ListChecks, Medal, RotateCcw } from "lucide-react";
+import { Boxes, ExternalLink, FileText, ListChecks, Medal, RotateCcw } from "lucide-react";
 import Link from "next/link";
 
 import { QuizInsightsPanel } from "@/components/QuizInsightsPanel";
@@ -36,6 +36,9 @@ const CASE_SIMULATOR_URL =
 const REPORT_BUILDER_URL =
   process.env.NEXT_PUBLIC_REPORT_BUILDER_URL ||
   "https://clinical-report-builder.vercel.app";
+const BIOMED_3D_LAB_URL =
+  process.env.NEXT_PUBLIC_BIOMED_3D_LAB_URL ||
+  "https://biomed-3d-engineering-lab.vercel.app";
 
 type RelatedCase = {
   caseId: string;
@@ -64,6 +67,15 @@ const RELATED_CASES: Partial<Record<CategorySlug, RelatedCase>> = {
     caseTitle: "Desfibrilador que no carga",
     equipment: "Desfibrilador",
   },
+};
+
+const CATEGORY_TO_3D_EQUIPMENT: Partial<Record<CategorySlug, string>> = {
+  "equipos-medicos": "patient-monitor",
+  "monitoreo-signos-vitales": "patient-monitor",
+  "bombas-infusion-terapia": "infusion-pump",
+  "desfibrilador-urgencias": "defibrillator",
+  "esterilizacion-autoclave": "autoclave",
+  "seguridad-electrica": "electrosurgery",
 };
 
 const MODE_LABEL: Record<QuizMode, string> = {
@@ -197,6 +209,15 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
         }
       : {}),
   }, "/builder/corrective");
+  const labUrl = buildExternalUrl(
+    BIOMED_3D_LAB_URL,
+    {
+      category: effectiveCategory,
+      ...(CATEGORY_TO_3D_EQUIPMENT[effectiveCategory]
+        ? { equipment: CATEGORY_TO_3D_EQUIPMENT[effectiveCategory] }
+        : {}),
+    },
+  );
   const repeatUrl = `/quiz/${effectiveCategory}?mode=${safeMode}&difficulty=${safeDifficulty}`;
   const showStorageNotice =
     sessionStorage === "supabase" || sessionStorage === "memory";
@@ -257,6 +278,15 @@ export default async function ResultPage({ searchParams }: ResultPageProps) {
               >
                 <ExternalLink className="h-4 w-4" aria-hidden="true" />
                 Practicar caso relacionado
+              </a>
+              <a
+                href={labUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-cyan-200 bg-cyan-50 px-3 py-2 text-sm font-medium text-cyan-900 transition hover:bg-cyan-100"
+              >
+                <Boxes className="h-4 w-4" aria-hidden="true" />
+                Explorar equipo en 3D
               </a>
               <Link
                 href={repeatUrl}

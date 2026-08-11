@@ -3,6 +3,7 @@
 import {
   ArrowRight,
   BookOpenCheck,
+  Boxes,
   ChartNoAxesColumn,
   CloudDownload,
   Gauge,
@@ -54,6 +55,18 @@ const LOCAL_RESULTS_KEY = "biomed_quiz_results_v2";
 const CASE_SIMULATOR_URL =
   process.env.NEXT_PUBLIC_CASE_SIMULATOR_URL ||
   "https://biomed-case-simulator.vercel.app";
+const BIOMED_3D_LAB_URL =
+  process.env.NEXT_PUBLIC_BIOMED_3D_LAB_URL ||
+  "https://biomed-3d-engineering-lab.vercel.app";
+
+const CATEGORY_TO_3D_EQUIPMENT: Partial<Record<CategorySlug, string>> = {
+  "equipos-medicos": "patient-monitor",
+  "monitoreo-signos-vitales": "patient-monitor",
+  "bombas-infusion-terapia": "infusion-pump",
+  "desfibrilador-urgencias": "defibrillator",
+  "esterilizacion-autoclave": "autoclave",
+  "seguridad-electrica": "electrosurgery",
+};
 
 const MODE_SHORT_LABEL: Record<QuizMode, string> = {
   study: "Estudio",
@@ -124,6 +137,16 @@ function buildCaseUrl(category: CategorySlug): string {
   return url.toString();
 }
 
+function build3dLabUrl(category: CategorySlug): string {
+  const url = new URL(BIOMED_3D_LAB_URL);
+  const equipment = CATEGORY_TO_3D_EQUIPMENT[category];
+  url.searchParams.set("category", category);
+  if (equipment) {
+    url.searchParams.set("equipment", equipment);
+  }
+  return url.toString();
+}
+
 export function QuizRunner({ category, questions, mode, difficulty }: QuizRunnerProps) {
   const router = useRouter();
 
@@ -157,6 +180,7 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
   const percent = getScorePercent(score, totalQuestions * 10);
   const isChallenge = mode === "challenge";
   const canContinue = locked;
+  const labUrl = build3dLabUrl(category.slug);
 
   const resetSession = useCallback(
     (nextQuestions: QuizQuestion[], source: QuestionSource) => {
@@ -615,6 +639,26 @@ export function QuizRunner({ category, questions, mode, difficulty }: QuizRunner
                   className="mt-3 inline-flex min-h-9 items-center justify-center gap-2 rounded-md text-sm font-semibold text-blue-700 hover:text-blue-900"
                 >
                   Practicar caso
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </a>
+              </section>
+
+              <section className="rounded-lg border border-blue-100 bg-white p-4 shadow-sm">
+                <h2 className="inline-flex items-center gap-2 text-sm font-semibold text-slate-950">
+                  <Boxes className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                  Equipo en 3D
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Abre el equipo relacionado para ubicar sensores, modulos y riesgos antes
+                  del caso.
+                </p>
+                <a
+                  href={labUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex min-h-9 items-center justify-center gap-2 rounded-md text-sm font-semibold text-blue-700 hover:text-blue-900"
+                >
+                  Explorar subsistemas
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </a>
               </section>

@@ -22,6 +22,7 @@ Modulo academico de repaso, pretest/postest, evaluacion rapida y competencia for
 - Dashboard con historial reciente, comparativa por categoria y exportacion CSV local
 - Enlace a Case Simulator por categoria
 - Enlace a Report Builder para generar evidencia de actividad
+- Enlace a BioMed 3D Engineering Lab para explorar el equipo relacionado
 
 ### Categorias
 
@@ -75,6 +76,16 @@ NEXT_PUBLIC_REPORT_BUILDER_URL?activity=quiz&category=<categoria>&score=<puntaje
 
 Report Builder prellena un reporte correctivo educativo con esos datos.
 
+### Integracion con BioMed 3D Engineering Lab
+
+El runner y el resultado final generan enlaces como:
+
+```txt
+NEXT_PUBLIC_BIOMED_3D_LAB_URL?category=<categoria>&equipment=<equipo-3d>
+```
+
+El laboratorio abre el equipo asociado para reforzar sensores, subsistemas, riesgos y fallas comunes antes de pasar al caso.
+
 ### Uso docente
 
 - Pretest: usar modo examen antes de clase/laboratorio.
@@ -91,6 +102,7 @@ NEXT_PUBLIC_SITE_URL=https://biomed-quiz-arena.vercel.app
 NEXT_PUBLIC_CORE_URL=https://biomedtools-mx-core.vercel.app
 NEXT_PUBLIC_CASE_SIMULATOR_URL=https://biomed-case-simulator.vercel.app
 NEXT_PUBLIC_REPORT_BUILDER_URL=https://clinical-report-builder.vercel.app
+NEXT_PUBLIC_BIOMED_3D_LAB_URL=https://biomed-3d-engineering-lab.vercel.app
 NEXT_PUBLIC_DONATION_URL=
 ```
 
