@@ -91,6 +91,13 @@ NEXT_PUBLIC_CASE_SIMULATOR_URL=https://biomed-case-simulator.vercel.app
 NEXT_PUBLIC_REPORT_BUILDER_URL=https://clinical-report-builder.vercel.app
 ```
 
+### Recursos visuales
+
+- Iconografia tecnica: Lucide React.
+- Iconos de salud incluidos en `public/assets/health-icons`: Health Icons.
+- Referencias visuales abiertas consultadas: Bioicons, Health Icons y NIH BioArt.
+- Atlas de equipos: asset local compartido con BioMedTools MX Core.
+
 ### Persistencia opcional (Supabase)
 
 Si defines estas variables, sesiones y ranking usan Supabase. Sin variables, se usa memoria del proceso (ephemeral).

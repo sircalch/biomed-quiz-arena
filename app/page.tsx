@@ -9,6 +9,7 @@ import {
   Timer,
   Trophy,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { QuizDashboardClient } from "@/components/QuizDashboardClient";
@@ -132,6 +133,25 @@ export default function Home() {
             </div>
 
             <aside className="border-t border-slate-200 bg-blue-950 p-5 text-white lg:border-l lg:border-t-0 md:p-7">
+              <div className="relative mb-4 aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-white">
+                <Image
+                  src="/biomed-equipment-atlas.png"
+                  alt="Equipos medicos para practica de quizzes"
+                  fill
+                  sizes="(min-width: 1024px) 520px, 100vw"
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-blue-950/85 to-transparent p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-cyan-100">
+                    Banco academico
+                  </p>
+                  <p className="mt-1 text-lg font-semibold">
+                    Repaso conectado a equipos y casos reales de clase.
+                  </p>
+                </div>
+              </div>
+
               <div className="rounded-lg border border-white/10 bg-white/[0.05] p-4">
                 <h2 className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-cyan-100">
                   <BarChart3 className="h-4 w-4" aria-hidden="true" />
@@ -176,6 +196,31 @@ export default function Home() {
                       </p>
                     </div>
                   </article>
+                ))}
+              </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {[
+                  ["/assets/health-icons/chart-line.svg", "Puntaje"],
+                  ["/assets/health-icons/blood-pressure-monitor.svg", "Monitoreo"],
+                  ["/assets/health-icons/health-worker-form.svg", "Evidencia"],
+                ].map(([src, label]) => (
+                  <div
+                    key={label}
+                    className="rounded-md border border-white/10 bg-white/[0.06] p-3 text-center"
+                  >
+                    <Image
+                      src={src}
+                      alt=""
+                      width={30}
+                      height={30}
+                      className="mx-auto rounded bg-white/95 p-1"
+                      aria-hidden="true"
+                    />
+                    <span className="mt-2 block text-[11px] font-semibold text-blue-100">
+                      {label}
+                    </span>
+                  </div>
                 ))}
               </div>
             </aside>

@@ -1,11 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f8fc;
-  --foreground: #0f172a;
+  --background: #eef4fb;
+  --foreground: #102033;
   --surface: #ffffff;
-  --border: #dde3ec;
-  --focus-ring: #2563eb;
+  --surface-soft: #f8fbff;
+  --border: #dbe5f1;
+  --focus-ring: #1565c0;
+  --brand-blue: #0d47a1;
+  --brand-blue-mid: #1565c0;
+  --brand-cyan: #00bcd4;
+  --brand-teal: #009688;
+  --brand-purple: #c77dff;
+  --shadow-soft: 0 12px 32px rgba(16, 45, 88, 0.09);
 }
 
 @theme inline {
@@ -18,11 +25,12 @@
 
 body {
   background:
-    linear-gradient(rgba(37, 99, 235, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37, 99, 235, 0.045) 1px, transparent 1px),
-    linear-gradient(180deg, #fbfdff 0%, #f7f8fc 52%, #eef4fb 100%),
+    radial-gradient(circle at 8% 0%, rgba(199, 125, 255, 0.12), transparent 28%),
+    linear-gradient(rgba(13, 71, 161, 0.052) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 71, 161, 0.042) 1px, transparent 1px),
+    linear-gradient(180deg, #fbfdff 0%, #f6f9fd 42%, #eef4fb 100%),
     var(--background);
-  background-size: 44px 44px, 44px 44px, auto, auto;
+  background-size: auto, 44px 44px, 44px 44px, auto, auto;
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   text-rendering: optimizeLegibility;
