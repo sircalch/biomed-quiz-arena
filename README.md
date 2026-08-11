@@ -117,6 +117,7 @@ Schema sugerido: `supabase/schema.sql`
 - Variables documentadas en `.env.example`.
 - Politica de seguridad en `SECURITY.md`.
 - Metadata Open Graph/Twitter configurada para enlaces compartidos.
+- Trazabilidad de recursos externos en `THIRD_PARTY_NOTICES.md`.
 
 ### Scripts
 
