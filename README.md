@@ -24,6 +24,7 @@ Modulo academico de repaso, pretest/postest, evaluacion rapida y competencia for
 - Enlace a Report Builder para generar evidencia de actividad
 - Enlace a BioMed 3D Engineering Lab para explorar el equipo relacionado
 - Dashboard con flujo visual Estudiar -> Explorar 3D -> Practicar -> Documentar
+- Franja superior de ecosistema para cambiar entre Core, Quiz, 3D Lab, Casos y Reportes.
 
 ### Categorias
 

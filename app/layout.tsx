@@ -1,5 +1,15 @@
 import type { Metadata } from "next";
-import { BarChart3, ExternalLink, ListChecks, Trophy } from "lucide-react";
+import {
+  BarChart3,
+  BookOpenCheck,
+  Boxes,
+  BrainCircuit,
+  ExternalLink,
+  FileText,
+  Home,
+  ListChecks,
+  Trophy,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -67,6 +77,23 @@ const DONATION_URL = process.env.NEXT_PUBLIC_DONATION_URL ?? "";
 const CORE_URL =
   process.env.NEXT_PUBLIC_CORE_URL ?? "https://biomedtools-mx-core.vercel.app";
 const CORE_RESOURCES_URL = new URL("/recursos", CORE_URL).toString();
+const CASE_SIMULATOR_URL =
+  process.env.NEXT_PUBLIC_CASE_SIMULATOR_URL ??
+  "https://biomed-case-simulator.vercel.app";
+const REPORT_BUILDER_URL =
+  process.env.NEXT_PUBLIC_REPORT_BUILDER_URL ??
+  "https://clinical-report-builder.vercel.app";
+const BIOMED_3D_LAB_URL =
+  process.env.NEXT_PUBLIC_BIOMED_3D_LAB_URL ??
+  "https://biomed-3d-engineering-lab.vercel.app";
+
+const ecosystemLinks = [
+  { label: "Core", href: CORE_URL, icon: Home },
+  { label: "Quiz", href: "/", icon: BookOpenCheck, active: true },
+  { label: "3D Lab", href: BIOMED_3D_LAB_URL, icon: Boxes },
+  { label: "Casos", href: CASE_SIMULATOR_URL, icon: BrainCircuit },
+  { label: "Reportes", href: REPORT_BUILDER_URL, icon: FileText },
+];
 
 export default function RootLayout({
   children,
@@ -123,6 +150,28 @@ export default function RootLayout({
                 <Trophy className="h-4 w-4" aria-hidden="true" />
                 Practicar
               </Link>
+            </nav>
+          </div>
+          <div className="border-t border-white/10 bg-blue-900/55">
+            <nav
+              aria-label="Modulos BioMedTools MX"
+              className="mx-auto flex w-full max-w-7xl gap-2 overflow-x-auto px-4 py-2 text-xs font-semibold md:px-6"
+            >
+              {ecosystemLinks.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className={[
+                    "inline-flex min-h-9 shrink-0 items-center gap-2 rounded-md border px-3 py-2 transition",
+                    item.active
+                      ? "border-cyan-200 bg-white text-blue-950"
+                      : "border-white/10 bg-white/5 text-blue-100 hover:bg-white/10 hover:text-white",
+                  ].join(" ")}
+                >
+                  <item.icon className="h-3.5 w-3.5" aria-hidden="true" />
+                  {item.label}
+                </a>
+              ))}
             </nav>
           </div>
         </header>
