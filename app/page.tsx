@@ -82,6 +82,33 @@ export default function Home() {
     },
   ];
 
+  const routeCards = [
+    {
+      label: "Quiz",
+      title: "Monitoreo de signos vitales",
+      href: "/quiz/monitoreo-signos-vitales?mode=study&difficulty=intermediate",
+      icon: BookOpenCheck,
+    },
+    {
+      label: "3D Lab",
+      title: "Monitor multiparametrico",
+      href: `${BIOMED_3D_LAB_URL}?category=monitoreo-signos-vitales&equipment=patient-monitor`,
+      icon: Boxes,
+    },
+    {
+      label: "Caso",
+      title: "Monitor sin lectura de SpO2",
+      href: `${CASE_SIMULATOR_URL}/cases/monitor-sin-spo2`,
+      icon: ClipboardCheck,
+    },
+    {
+      label: "Reporte",
+      title: "Evidencia tecnica",
+      href: `${REPORT_BUILDER_URL}/builder/corrective?activity=quiz&category=monitoreo-signos-vitales`,
+      icon: FileCheck2,
+    },
+  ];
+
   return (
     <div className="min-h-screen">
       <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6">
@@ -253,6 +280,48 @@ export default function Home() {
                 ))}
               </div>
             </aside>
+          </div>
+        </section>
+
+        <section className="mt-6 overflow-hidden rounded-lg border border-blue-100 bg-white shadow-sm">
+          <div className="grid gap-0 lg:grid-cols-[0.78fr_1.22fr]">
+            <div className="bg-blue-950 p-5 text-white md:p-6">
+              <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-cyan-100">
+                <BarChart3 className="h-4 w-4" aria-hidden="true" />
+                Ruta completa recomendada
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold leading-tight">
+                Usa el quiz como punto de entrada, no como actividad aislada.
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-blue-100">
+                La ruta sugerida conecta repaso, exploracion 3D, caso tecnico y
+                evidencia documentable para clase.
+              </p>
+            </div>
+            <div className="grid gap-3 p-4 md:grid-cols-2 md:p-5 xl:grid-cols-4">
+              {routeCards.map((item, index) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="group rounded-lg border border-slate-200 bg-slate-50 p-4 transition hover:border-blue-200 hover:bg-blue-50"
+                >
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-blue-700 text-sm font-semibold text-white">
+                    {index + 1}
+                  </span>
+                  <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-blue-700">
+                    <item.icon className="h-4 w-4" aria-hidden="true" />
+                    {item.label}
+                  </p>
+                  <h3 className="mt-2 text-sm font-semibold leading-5 text-slate-950">
+                    {item.title}
+                  </h3>
+                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-blue-700">
+                    Abrir
+                    <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" aria-hidden="true" />
+                  </span>
+                </a>
+              ))}
+            </div>
           </div>
         </section>
 

@@ -25,6 +25,7 @@ Modulo academico de repaso, pretest/postest, evaluacion rapida y competencia for
 - Enlace a BioMed 3D Engineering Lab para explorar el equipo relacionado
 - Dashboard con flujo visual Estudiar -> Explorar 3D -> Practicar -> Documentar
 - Franja superior de ecosistema para cambiar entre Core, Quiz, 3D Lab, Casos y Reportes.
+- Bloque de ruta completa recomendada para Monitoreo SpO2: Quiz -> 3D Lab -> Caso -> Reporte.
 
 ### Categorias
 
