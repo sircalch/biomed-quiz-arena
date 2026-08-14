@@ -2,6 +2,7 @@ import {
   ArrowRight,
   BarChart3,
   BookOpenCheck,
+  Boxes,
   ClipboardCheck,
   FileCheck2,
   GraduationCap,
@@ -21,6 +22,9 @@ const CASE_SIMULATOR_URL =
 const REPORT_BUILDER_URL =
   process.env.NEXT_PUBLIC_REPORT_BUILDER_URL ??
   "https://clinical-report-builder.vercel.app";
+const BIOMED_3D_LAB_URL =
+  process.env.NEXT_PUBLIC_BIOMED_3D_LAB_URL ??
+  "https://biomed-3d-engineering-lab.vercel.app";
 
 export default function Home() {
   const categories = getAllCategories();
@@ -38,16 +42,25 @@ export default function Home() {
       step: "1",
       title: "Estudiar",
       body: "Selecciona categoria, dificultad y modo de practica.",
+      icon: BookOpenCheck,
     },
     {
       step: "2",
-      title: "Practicar",
-      body: "Conecta el resultado con un caso simulado relacionado.",
+      title: "Explorar 3D",
+      body: "Ubica sensores, conexiones y subsistemas del equipo relacionado.",
+      icon: Boxes,
     },
     {
       step: "3",
+      title: "Practicar",
+      body: "Conecta el resultado con un caso simulado relacionado.",
+      icon: ClipboardCheck,
+    },
+    {
+      step: "4",
       title: "Documentar",
       body: "Genera evidencia tecnica en Report Builder cuando aplique.",
+      icon: FileCheck2,
     },
   ];
 
@@ -112,6 +125,13 @@ export default function Home() {
                 >
                   Practicar caso SpO2
                 </a>
+                <a
+                  href={`${BIOMED_3D_LAB_URL}?category=monitoreo-signos-vitales&equipment=patient-monitor`}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-cyan-200 bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-900 transition hover:border-cyan-300 hover:bg-cyan-100"
+                >
+                  Explorar monitor 3D
+                  <Boxes className="h-4 w-4" aria-hidden="true" />
+                </a>
               </div>
 
               <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -172,6 +192,12 @@ export default function Home() {
                     Abrir quiz sugerido
                   </Link>
                   <a
+                    href={`${BIOMED_3D_LAB_URL}?category=monitoreo-signos-vitales&equipment=patient-monitor`}
+                    className="inline-flex min-h-10 items-center justify-center rounded-md border border-white/20 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                  >
+                    Explorar equipo 3D
+                  </a>
+                  <a
                     href={`${REPORT_BUILDER_URL}/builder/corrective?activity=quiz&category=monitoreo-signos-vitales`}
                     className="inline-flex min-h-10 items-center justify-center rounded-md border border-white/20 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
                   >
@@ -190,7 +216,10 @@ export default function Home() {
                       {item.step}
                     </span>
                     <div>
-                      <p className="text-sm font-semibold text-white">{item.title}</p>
+                      <p className="inline-flex items-center gap-2 text-sm font-semibold text-white">
+                        <item.icon className="h-4 w-4 text-cyan-100" aria-hidden="true" />
+                        {item.title}
+                      </p>
                       <p className="mt-1 text-xs leading-5 text-blue-100">
                         {item.body}
                       </p>
